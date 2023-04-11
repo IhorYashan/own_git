@@ -50,9 +50,14 @@ fn find_blob_file_path(dir_path: &str, file_name: &str) -> Option<String> {
 fn read_blob(path_to_objects: String, hash_file: String) {
     let mut file_content = Vec::new();
 
+    // println!("------- path_to_objects : {}", path_to_objects);
+    // println!("------- file-name : {}", hash_file);
+
     let path_to_objects = path_to_objects + "/";
 
     let path_to_objects = path_to_objects + &hash_file.to_string();
+
+    //println!("------- result : {}", path_to_objects);
 
     let mut path_to_objects = File::open(&path_to_objects).expect("Unable to open file");
     path_to_objects
@@ -92,7 +97,7 @@ fn main() {
 
     do_git_init(&args);
 
-    let blob_file = &args[2]; //cat-file -p <blob_file>
+    let blob_file = &args[3]; //cat-file -p <blob_file>
 
     let (hash_path, hash_file) = parse_args(blob_file);
 
