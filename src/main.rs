@@ -10,7 +10,7 @@ use std::io::Read;
 
 fn parse_args() {}
 
-fn do_git_init(args: Vec<String>) {
+fn do_git_init(args: &Vec<String>) {
     if args[1] == "init" {
         fs::create_dir(".git").unwrap();
         fs::create_dir(".git/objects").unwrap();
@@ -82,7 +82,7 @@ fn main() {
     // Uncomment this block to pass the first stage
     let args: Vec<String> = env::args().collect();
 
-    //do_git_init(args);
+    do_git_init(&args);
 
     let blob_file = &args[2]; //cat-file -p <blob_file>
 
