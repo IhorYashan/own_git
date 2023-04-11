@@ -110,7 +110,7 @@ fn main() {
         }
     }
 
-    if args[1] == "cat-file" {
+    if args[1] == "cat-file" && args[2] == "-p" {
         read_blob(blob_file_path);
     }
 }
