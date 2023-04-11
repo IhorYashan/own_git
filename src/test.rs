@@ -1,4 +1,3 @@
-use clap::builder::Str;
 use flate2::read::GzDecoder;
 use flate2::read::ZlibDecoder;
 #[allow(unused_imports)]
@@ -8,6 +7,8 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::Read;
+
+fn parse_args() {}
 
 fn do_git_init(args: &Vec<String>) {
     if args[1] == "init" {
@@ -47,12 +48,8 @@ fn find_blob_file_path(dir_path: &str, file_name: &str) -> Option<String> {
     file_path
 }
 
-fn read_blob(path_to_objects: String, hash_file: String) {
+fn read_blob(path_to_objects: String) {
     let mut file_content = Vec::new();
-
-    let path_to_objects = path_to_objects + "/";
-
-    let path_to_objects = path_to_objects + &hash_file.to_string();
 
     let mut path_to_objects = File::open(&path_to_objects).expect("Unable to open file");
     path_to_objects
@@ -78,11 +75,6 @@ fn read_blob(path_to_objects: String, hash_file: String) {
     }
 }
 
-fn parse_args(args: &String) -> (&str, &str) {
-    let (hash_path, hash_file) = (&args[..2], &args[2..]);
-    (hash_path, hash_file)
-}
-
 fn main() {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     println!("Logs from your program will appear here!");
@@ -94,36 +86,31 @@ fn main() {
 
     let blob_file = &args[2]; //cat-file -p <blob_file>
 
-    let (hash_path, hash_file) = parse_args(blob_file);
+    //------------------------------get all paths---------------------------//
+    let paths = fs::read_dir(".git/objects/")
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .map(|e| e.path().to_string_lossy().into_owned())
+        .collect::<Vec<_>>();
 
-    let path = ".git/objects/".to_string() + hash_path;
+    let mut blob_file_path = String::from("");
 
-    /*
-       //------------------------------get all paths---------------------------//
-       let paths = fs::read_dir(".git/objects/")
-           .unwrap()
-           .filter_map(|e| e.ok())
-           .map(|e| e.path().to_string_lossy().into_owned())
-           .collect::<Vec<_>>();
+    //------------------------------find blob file path --------------------- //
+    for path in paths {
+        let path_blob = find_blob_file_path(path.as_str(), blob_file);
 
-       let mut blob_file_path = String::from("");
+        match path_blob {
+            Some(file) => {
+                blob_file_path = file;
+                // println!("{}", blob_file_path);
+            }
+            None => {
+                //  println!("Could not find file");
+            }
+        }
+    }
 
-       //------------------------------find blob file path --------------------- //
-       for path in paths {
-           let path_blob = find_blob_file_path(path.as_str(), blob_file);
-
-           match path_blob {
-               Some(file) => {
-                   blob_file_path = file;
-                   // println!("{}", blob_file_path);
-               }
-               None => {
-                   //  println!("Could not find file");
-               }
-           }
-       }
-    */
     if args[1] == "cat-file" && args[2] == "-p" {
-        read_blob(path, hash_file.to_string());
+        read_blob(blob_file_path);
     }
 }
