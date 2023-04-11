@@ -84,7 +84,7 @@ fn main() {
 
     //do_git_init(args);
 
-    let blob_file = &args[3]; //cat-file -p <blob_file>
+    let blob_file = &args[2]; //cat-file -p <blob_file>
 
     //------------------------------get all paths---------------------------//
     let paths = fs::read_dir(".git/objects/")
@@ -110,7 +110,7 @@ fn main() {
         }
     }
 
-    if args[1] == "cat-file" && args[2] == "-p" {
+    if args[1] == "cat-file" {
         read_blob(blob_file_path);
     }
 }
