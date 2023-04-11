@@ -79,7 +79,7 @@ fn read_blob(path_to_objects: String, hash_file: String) {
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
 
-        std::io::stdout().write_all(&buffer[2..bytes_read]).unwrap();
+        std::io::stdout().write_all(&buffer[8..bytes_read]).unwrap();
     }
 }
 
