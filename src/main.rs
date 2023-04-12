@@ -21,32 +21,6 @@ fn do_git_init(args: &Vec<String>) {
     }
 }
 
-fn find_blob_file_path(dir_path: &str, file_name: &str) -> Option<String> {
-    let mut file_path: Option<String> = None;
-
-    match fs::read_dir(dir_path) {
-        Ok(entries) => {
-            for entry in entries {
-                match entry {
-                    Ok(dir_entry) => {
-                        let path = dir_entry.path();
-                        if path.is_file() && path.file_name().unwrap() == file_name {
-                            file_path = Some(path.to_string_lossy().to_string());
-                            break;
-                        }
-                    }
-                    Err(e) => println!("Err: {}", e),
-                }
-            }
-        }
-        Err(e) => println!("Err: {}", e),
-    }
-
-    file_path = file_path.map(|s| s.replace("\\", "/"));
-
-    file_path
-}
-
 fn read_blob(path_to_objects: String, hash_file: String) {
     let mut file_content = Vec::new();
 
@@ -83,52 +57,35 @@ fn read_blob(path_to_objects: String, hash_file: String) {
     }
 }
 
+fn write_blob(path: Strings) {}
+
 fn parse_args(args: &String) -> (&str, &str) {
     let (hash_path, hash_file) = (&args[..2], &args[2..]);
     (hash_path, hash_file)
 }
 
 fn main() {
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
-    //println!("Logs from your program will appear here!");
-
-    // Uncomment this block to pass the first stage
     let args: Vec<String> = env::args().collect();
 
     do_git_init(&args);
 
-    let blob_file = &args[3]; //cat-file -p <blob_file>
-
+    let blob_file = &args[3]; //own_git cat-file -p <blob_file>
+    
+    let path_to_objects = ".git/objects/".to_string();
     let (hash_path, hash_file) = parse_args(blob_file);
+    
+    let path = path_to_objects + hash_path;
 
-    let path = ".git/objects/".to_string() + hash_path;
 
-    /*
-       //------------------------------get all paths---------------------------//
-       let paths = fs::read_dir(".git/objects/")
-           .unwrap()
-           .filter_map(|e| e.ok())
-           .map(|e| e.path().to_string_lossy().into_owned())
-           .collect::<Vec<_>>();
 
-       let mut blob_file_path = String::from("");
-
-       //------------------------------find blob file path --------------------- //
-       for path in paths {
-           let path_blob = find_blob_file_path(path.as_str(), blob_file);
-
-           match path_blob {
-               Some(file) => {
-                   blob_file_path = file;
-                   // println!("{}", blob_file_path);
-               }
-               None => {
-                   //  println!("Could not find file");
-               }
-           }
-       }
-    */
     if args[1] == "cat-file" && args[2] == "-p" {
         read_blob(path, hash_file.to_string());
+    }
+
+    if args[1] == "hash-object" && args[2] == "-w" {
+        let content_blob_file = &args[3]; //own_git hash-object -w <file>
+        let (content_hash_path, content_hash_file) = parse_args(content_blob_file)
+        let path = path_to_objects + content_hash_path; 
+        write_blob(path);
     }
 }
