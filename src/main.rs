@@ -1,10 +1,13 @@
 use flate2::read::ZlibDecoder;
+use flate2::write::ZlibEncoder;
+use flate2::Compression;
 #[allow(unused_imports)]
 use std::env;
 #[allow(unused_imports)]
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::stdout;
 use std::io::Read;
 
 fn do_git_init(args: &Vec<String>) {
@@ -22,14 +25,8 @@ fn do_git_init(args: &Vec<String>) {
 fn read_blob(path_to_objects: String, hash_file: String) {
     let mut file_content = Vec::new();
 
-    // println!("------- path_to_objects : {}", path_to_objects);
-    // println!("------- file-name : {}", hash_file);
-
     let path_to_objects = path_to_objects + "/";
-
     let path_to_objects = path_to_objects + &hash_file.to_string();
-
-    //println!("------- result : {}", path_to_objects);
 
     let mut path_to_objects = File::open(&path_to_objects).expect("Unable to open file");
     path_to_objects
@@ -55,7 +52,15 @@ fn read_blob(path_to_objects: String, hash_file: String) {
     }
 }
 
-//fn write_blob(path: Strings) {}
+fn write_blob(content_blob_file: String) {
+    let data_to_compress = content_blob_file.as_bytes();
+    let mut compressed_data = Vec::new();
+
+    let mut encoder = ZlibEncoder::new(&mut compressed_data, Compression::default());
+    encoder.write_all(data_to_compress).unwrap();
+    encoder.finish().unwrap();
+    stdout().write_all(&compressed_data).unwrap();
+}
 
 fn parse_args(args: &String) -> (&str, &str) {
     let (hash_path, hash_file) = (&args[..2], &args[2..]);
@@ -67,21 +72,20 @@ fn main() {
 
     do_git_init(&args);
 
-    let blob_file = &args[3]; //own_git cat-file -p <blob_file>
-
     let path_to_objects = ".git/objects/".to_string();
-    let (hash_path, hash_file) = parse_args(blob_file);
-
-    let path = path_to_objects + hash_path;
 
     if args[1] == "cat-file" && args[2] == "-p" {
+        let blob_file = &args[3]; //own_git cat-file -p <blob_file>
+        let (hash_path, hash_file) = parse_args(blob_file);
+        let path = path_to_objects + hash_path;
+
         read_blob(path, hash_file.to_string());
     }
 
     if args[1] == "hash-object" && args[2] == "-w" {
         let content_blob_file = &args[3]; //own_git hash-object -w <file>
-        let (content_hash_path, content_hash_file) = parse_args(content_blob_file);
+
         //let path = path_to_objects + content_hash_path;
-        // write_blob(path);
+        write_blob(content_blob_file.to_string());
     }
 }
