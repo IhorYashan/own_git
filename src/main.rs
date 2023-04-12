@@ -1,5 +1,3 @@
-use clap::builder::Str;
-use flate2::read::GzDecoder;
 use flate2::read::ZlibDecoder;
 #[allow(unused_imports)]
 use std::env;
@@ -57,7 +55,7 @@ fn read_blob(path_to_objects: String, hash_file: String) {
     }
 }
 
-fn write_blob(path: Strings) {}
+//fn write_blob(path: Strings) {}
 
 fn parse_args(args: &String) -> (&str, &str) {
     let (hash_path, hash_file) = (&args[..2], &args[2..]);
@@ -70,13 +68,11 @@ fn main() {
     do_git_init(&args);
 
     let blob_file = &args[3]; //own_git cat-file -p <blob_file>
-    
+
     let path_to_objects = ".git/objects/".to_string();
     let (hash_path, hash_file) = parse_args(blob_file);
-    
+
     let path = path_to_objects + hash_path;
-
-
 
     if args[1] == "cat-file" && args[2] == "-p" {
         read_blob(path, hash_file.to_string());
@@ -84,8 +80,8 @@ fn main() {
 
     if args[1] == "hash-object" && args[2] == "-w" {
         let content_blob_file = &args[3]; //own_git hash-object -w <file>
-        let (content_hash_path, content_hash_file) = parse_args(content_blob_file)
-        let path = path_to_objects + content_hash_path; 
-        write_blob(path);
+        let (content_hash_path, content_hash_file) = parse_args(content_blob_file);
+        //let path = path_to_objects + content_hash_path;
+        // write_blob(path);
     }
 }
