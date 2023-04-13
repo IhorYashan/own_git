@@ -1,3 +1,6 @@
+extern crate hex;
+extern crate sha1;
+
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
 use flate2::Compression;
@@ -9,6 +12,10 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::stdout;
 use std::io::Read;
+
+use crate::sha1::Digest;
+use hex::encode;
+use sha1::Sha1;
 
 fn do_git_init(args: &Vec<String>) {
     if args[1] == "init" {
@@ -26,14 +33,11 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     let mut file_content = Vec::new();
 
     let path_to_bolob_file = path_to_bolob_file + "/" + &hash_file.to_string();
-    //let path_to_bolob_file = path_to_bolob_file + &hash_file.to_string();
     let mut path_to_bolob_file = File::open(&path_to_bolob_file).unwrap();
 
     path_to_bolob_file.read_to_end(&mut file_content).unwrap();
 
     let compressed_data = &file_content[..];
-
-    //-------------------------decocde---------------------------------------//
 
     let mut decoder = ZlibDecoder::new(compressed_data);
 
@@ -50,13 +54,19 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     }
 }
 
-fn write_blob(content_blob_file: String, path_to_objects: String) {
+fn write_blob(content_blob_file: String) {
     let data_to_compress = content_blob_file.as_bytes();
     let mut compressed_data = Vec::new();
 
     let mut encoder = ZlibEncoder::new(&mut compressed_data, Compression::default());
     encoder.write_all(data_to_compress).unwrap();
     encoder.finish().unwrap();
+
+    let mut hasher = Sha1::new();
+    hasher.update(data_to_compress);
+    let hash = hasher.finalize();
+    let hash_hex = encode(&hash);
+    println!("{}", hash_hex)
 }
 
 fn parse_args(args: &String) -> (&str, &str) {
@@ -72,7 +82,7 @@ fn main() {
     let path_to_objects = ".git/objects/".to_string();
 
     if args[1] == "cat-file" && args[2] == "-p" {
-        let blob_file = &args[3]; //own_git cat-file -p <blob_file>
+        let blob_file = &args[3]; //own_git cat-file -p <blob_file> // hash : [hash_dir + hash_file]
         let (hash_path, hash_file) = parse_args(blob_file);
         let path_to_bolob_file = path_to_objects + hash_path;
 
@@ -80,9 +90,8 @@ fn main() {
     }
 
     if args[1] == "hash-object" && args[2] == "-w" {
-        let content_blob_file = &args[3]; //own_git hash-object -w <file>
+        let content_file = &args[3]; //own_git hash-object -w <file>
 
-        //let path = path_to_objects + content_hash_path;
-        //write_blob(content_blob_file.to_string(), path_to_objects);
+        write_blob(content_file.to_string());
     }
 }
