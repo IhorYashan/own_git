@@ -74,9 +74,9 @@ fn write_blob(content_blob_file: Vec<u8>, path_to_objects: String) {
     print!("{}", hash_blob_file);
 
     let hash_path = &hash_blob_file[..2];
-    let hash_path = path_to_objects + hash_path;
-    let full_hash_path = hash_path + &hash_blob_file[2..];
-    fs::create_dir(hash_path).unwrap();
+    let hash_path_dir = path_to_objects + hash_path;
+    let full_hash_path = hash_path_dir.clone() + &hash_blob_file[2..];
+    fs::create_dir(hash_path_dir).unwrap();
     fs::write(full_hash_path, compressed_data).unwrap();
 }
 
@@ -95,7 +95,7 @@ fn main() {
     if args[1] == "cat-file" && args[2] == "-p" {
         let blob_file = &args[3]; //own_git cat-file -p <blob_file> // hash : [hash_dir + hash_file]
         let (hash_path, hash_file) = parse_args(blob_file);
-        let path_to_bolob_file = path_to_objects + hash_path;
+        let path_to_bolob_file = path_to_objects.clone() + hash_path;
 
         read_blob(path_to_bolob_file, hash_file.to_string());
     }
