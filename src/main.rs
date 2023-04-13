@@ -65,8 +65,10 @@ fn write_blob(content_blob_file: String) {
     let mut hasher = Sha1::new();
     hasher.update(data_to_compress);
     let hash = hasher.finalize();
-    let hash_hex = encode(&hash);
-    print!("{}", hash_hex)
+    let hash_blob_file = encode(&hash);
+
+    let hash = &hash_blob_file[2..];
+    print!("{}", hash);
 }
 
 fn parse_args(args: &String) -> (&str, &str) {
