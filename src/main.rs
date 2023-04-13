@@ -54,7 +54,7 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     }
 }
 
-fn write_blob(content_blob_file: Vec<u8>) {
+fn write_blob(content_blob_file: Vec<u8>, path_to_objects: String) {
     //let data_to_compress = content_blob_file.as_bytes();
 
     let header_blob = format!("blob {}\x00", content_blob_file.len());
@@ -72,6 +72,12 @@ fn write_blob(content_blob_file: Vec<u8>) {
     let hash_blob_file = hex::encode(&hash);
 
     print!("{}", hash_blob_file);
+
+    let hash_path = &hash_blob_file[..2];
+    let hash_path = path_to_objects + hash_path;
+    let full_hash_path = hash_path + &hash_blob_file[2..];
+    fs::create_dir(hash_path).unwrap();
+    fs::write(full_hash_path, compressed_data).unwrap();
 }
 
 fn parse_args(args: &String) -> (&str, &str) {
@@ -97,6 +103,6 @@ fn main() {
     if args[1] == "hash-object" && args[2] == "-w" {
         let content_file = fs::read(&args[3].to_string()).unwrap(); //own_git hash-object -w <file>
 
-        write_blob(content_file);
+        write_blob(content_file, path_to_objects);
     }
 }
