@@ -69,7 +69,7 @@ fn write_blob(content_blob_file: String) {
     let mut hasher = Sha1::new();
     hasher.update(data_to_compress);
     let hash = hasher.finalize();
-    let hash_blob_file = encode(&hash);
+    let hash_blob_file = hex::encode(&hash);
 
     print!("{}", hash_blob_file);
 }
