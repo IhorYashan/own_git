@@ -60,7 +60,7 @@ fn write_blob(content_blob_file: String) {
     let header_blob = format!("blob {}\x00", content_blob_file.len());
 
     let data_to_compress =
-        header_blob + &format!("{}", String::from_utf8(content_blob_file).unwrap());
+        header_blob + &format!("{}", String::from_utf8(content_blob_file.into()).unwrap());
 
     let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
     encoder.write_all(data_to_compress.as_bytes()).unwrap();
