@@ -66,7 +66,7 @@ fn write_blob(content_blob_file: String) {
     hasher.update(data_to_compress);
     let hash = hasher.finalize();
     let hash_hex = encode(&hash);
-    println!("{}", hash_hex)
+    print!("{}", hash_hex)
 }
 
 fn parse_args(args: &String) -> (&str, &str) {
