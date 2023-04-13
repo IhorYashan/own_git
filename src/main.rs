@@ -22,16 +22,14 @@ fn do_git_init(args: &Vec<String>) {
     }
 }
 
-fn read_blob(path_to_objects: String, hash_file: String) {
+fn read_blob(path_to_bolob_file: String, hash_file: String) {
     let mut file_content = Vec::new();
 
-    let path_to_objects = path_to_objects + "/";
-    let path_to_objects = path_to_objects + &hash_file.to_string();
+    let path_to_bolob_file = path_to_bolob_file + "/" + &hash_file.to_string();
+    //let path_to_bolob_file = path_to_bolob_file + &hash_file.to_string();
+    let mut path_to_bolob_file = File::open(&path_to_bolob_file).unwrap();
 
-    let mut path_to_objects = File::open(&path_to_objects).expect("Unable to open file");
-    path_to_objects
-        .read_to_end(&mut file_content)
-        .expect("Unable to read");
+    path_to_bolob_file.read_to_end(&mut file_content).unwrap();
 
     let compressed_data = &file_content[..];
 
@@ -52,14 +50,13 @@ fn read_blob(path_to_objects: String, hash_file: String) {
     }
 }
 
-fn write_blob(content_blob_file: String) {
+fn write_blob(content_blob_file: String, path_to_objects: String) {
     let data_to_compress = content_blob_file.as_bytes();
     let mut compressed_data = Vec::new();
 
     let mut encoder = ZlibEncoder::new(&mut compressed_data, Compression::default());
     encoder.write_all(data_to_compress).unwrap();
     encoder.finish().unwrap();
-    stdout().write_all(&compressed_data).unwrap();
 }
 
 fn parse_args(args: &String) -> (&str, &str) {
@@ -77,15 +74,15 @@ fn main() {
     if args[1] == "cat-file" && args[2] == "-p" {
         let blob_file = &args[3]; //own_git cat-file -p <blob_file>
         let (hash_path, hash_file) = parse_args(blob_file);
-        let path = path_to_objects + hash_path;
+        let path_to_bolob_file = path_to_objects + hash_path;
 
-        read_blob(path, hash_file.to_string());
+        read_blob(path_to_bolob_file, hash_file.to_string());
     }
 
     if args[1] == "hash-object" && args[2] == "-w" {
         let content_blob_file = &args[3]; //own_git hash-object -w <file>
 
         //let path = path_to_objects + content_hash_path;
-        write_blob(content_blob_file.to_string());
+        //write_blob(content_blob_file.to_string(), path_to_objects);
     }
 }
