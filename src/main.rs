@@ -73,9 +73,13 @@ fn write_blob(content_blob_file: Vec<u8>, path_to_objects: String) {
 
     print!("{}", hash_blob_file);
 
-    let hash_path = &hash_blob_file[..2];
-    let hash_path_dir = path_to_objects + hash_path;
-    let full_hash_path = hash_path_dir.clone() + &hash_blob_file[2..];
+    //let chars: Vec<char> = result.chars().collect();
+
+    let hash_dir = &hash_blob_file[..2];
+    let hash_file = &hash_blob_file[2..];
+    let hash_path_dir = format!(".git/objects/{}/", hash_dir);
+    let full_hash_path = format!("{}{}", hash_path_dir, hash_file);
+
     fs::create_dir(hash_path_dir).unwrap();
     fs::write(full_hash_path, compressed_data).unwrap();
 }
