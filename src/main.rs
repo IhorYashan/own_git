@@ -55,7 +55,7 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
 }
 
 fn write_blob(content_blob_file: String) {
-    let data_to_compress = content_blob_file.as_bytes();
+    let data_to_compress = content_blob_file[8..].as_bytes();
     let mut compressed_data = Vec::new();
 
     let mut encoder = ZlibEncoder::new(&mut compressed_data, Compression::default());
@@ -67,8 +67,7 @@ fn write_blob(content_blob_file: String) {
     let hash = hasher.finalize();
     let hash_blob_file = encode(&hash);
 
-    let hash = &hash_blob_file[2..];
-    print!("{}", hash);
+    print!("{}", hash_blob_file);
 }
 
 fn parse_args(args: &String) -> (&str, &str) {
