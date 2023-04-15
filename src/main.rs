@@ -10,11 +10,10 @@ use std::env;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
-use std::io::stdout;
 use std::io::Read;
 
 use crate::sha1::Digest;
-use hex::encode;
+
 use sha1::Sha1;
 
 fn do_git_init(args: &Vec<String>) {
@@ -54,7 +53,7 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     }
 }
 
-fn write_blob(content_blob_file: Vec<u8>, path_to_objects: String) {
+fn write_blob(content_blob_file: Vec<u8>) {
     //let data_to_compress = content_blob_file.as_bytes();
 
     let header_blob = format!("blob {}\x00", content_blob_file.len());
@@ -73,8 +72,6 @@ fn write_blob(content_blob_file: Vec<u8>, path_to_objects: String) {
 
     print!("{}", hash_blob_file);
 
-    //let chars: Vec<char> = result.chars().collect();
-
     let hash_dir = &hash_blob_file[..2];
     let hash_file = &hash_blob_file[2..];
     let hash_path_dir = format!(".git/objects/{}/", hash_dir);
@@ -87,6 +84,24 @@ fn write_blob(content_blob_file: Vec<u8>, path_to_objects: String) {
 fn parse_args(args: &String) -> (&str, &str) {
     let (hash_path, hash_file) = (&args[..2], &args[2..]);
     (hash_path, hash_file)
+}
+
+fn read_tree_sha(sha_tree: String) {
+    //let mut file_content = Vec::new();
+
+    let mut decoder = ZlibDecoder::new(sha_tree);
+
+    let mut buffer = [0; 4096];
+
+    loop {
+        let bytes_read = match decoder.read(&mut buffer) {
+            Ok(0) => break,
+            Ok(n) => n,
+            Err(e) => panic!("Unable to read from decoder: {:?}", e),
+        };
+
+        std::io::stdout().write_all(&buffer[..bytes_read]).unwrap();
+    }
 }
 
 fn main() {
@@ -107,6 +122,12 @@ fn main() {
     if args[1] == "hash-object" && args[2] == "-w" {
         let content_file = fs::read(&args[3].to_string()).unwrap(); //own_git hash-object -w <file>
 
-        write_blob(content_file, path_to_objects);
+        write_blob(content_file);
+    }
+
+    if args[1] == "ls-tree" && args[2] == "--name-only" {
+        let sha_tree = &args[3];
+
+        read_tree_sha(sha_tree);
     }
 }
