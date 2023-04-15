@@ -103,6 +103,7 @@ fn read_tree_sha(sha_tree: String) {
     let mut decoder = ZlibDecoder::new(compressed_data);
 
     let mut buffer = [0; 4096];
+    let mut formatted_buff = String::new();
 
     loop {
         let bytes_read = match decoder.read(&mut buffer) {
@@ -111,10 +112,14 @@ fn read_tree_sha(sha_tree: String) {
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
 
-        std::io::stdout().write_all(&buffer[..bytes_read]).unwrap();
+        //std::io::stdout().write_all(&buffer[..bytes_read]).unwrap();
+        let formatted_str = String::from_utf8(buffer[8..bytes_read].to_vec()).unwrap();
+        let parts: Vec<&str> = formatted_str.split('\x00').collect();
+        formatted_buff.push_str(&parts.join("\n"));
+        formatted_buff.push('\n');
     }
 
-    //println!("decoded_data : {}", decoded_data);
+    println!("decoded_data : {}", formatted_buff);
 }
 
 fn main() {
