@@ -49,7 +49,7 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
 
-        std::io::stdout().write_all(&buffer[8..bytes_read]).unwrap();
+        std::io::stdout().write_all(&buffer[..bytes_read]).unwrap();
     }
 }
 
@@ -86,24 +86,33 @@ fn parse_args(args: &String) -> (&str, &str) {
     (hash_path, hash_file)
 }
 
-fn read_tree_sha_test(sha_tree: String) {
-    //let mut file_content = Vec::new();
-    println!("in func {}", sha_tree);
-    let mut decoder = ZlibDecoder::new(sha_tree.as_bytes());
-    let mut s = String::new();
-    decoder.read_to_string(&mut s).unwrap();
-    println!("Tree sha : {}", s);
-}
+fn read_tree_sha(sha_tree: String) {
+    let mut file_content = Vec::new();
 
-fn read_tree_sha(sha_tree: &str) {
-    let bytes = hex::decode(sha_tree).unwrap();
+    let hash_dir = &sha_tree[..2];
+    //println!("hash_dir : {}", hash_dir);
+    let hash_tree_object = &sha_tree[2..];
+    println!("hash_dir : {}", hash_tree_object);
 
-    let mut decoder = ZlibDecoder::new(&bytes[..]);
+    let full_path = ".git/objects/".to_string() + &hash_dir + &hash_tree_object;
+    let mut full_path = File::open(&full_path).unwrap();
+    full_path.read_to_end(&mut file_content).unwrap();
 
-    let mut decoded_data = String::new();
-    decoder.read_to_string(&mut decoded_data).unwrap();
+    let compressed_data = &file_content[..];
 
-    println!("decoded_data : {}", decoded_data);
+    let mut buffer = [0; 4096];
+
+    loop {
+        let bytes_read = match decoder.read(&mut buffer) {
+            Ok(0) => break,
+            Ok(n) => n,
+            Err(e) => panic!("Unable to read from decoder: {:?}", e),
+        };
+
+        std::io::stdout().write_all(&buffer[..bytes_read]).unwrap();
+    }
+
+    //println!("decoded_data : {}", decoded_data);
 }
 
 fn main() {
@@ -130,6 +139,8 @@ fn main() {
     if args[1] == "ls-tree" && args[2] == "--name-only" {
         let sha_tree = &args[3];
 
-        read_tree_sha(&sha_tree.to_string());
+        //let sha_tree = "acada1c1122b334b98a15430aa2fae91d024c7ca";
+
+        read_tree_sha(sha_tree.to_string());
     }
 }
