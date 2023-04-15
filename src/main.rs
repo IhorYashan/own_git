@@ -111,9 +111,14 @@ fn read_tree_sha(sha_tree: String) {
             Ok(n) => n,
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
+
+        formatted_buff = String::from_utf8_lossy(&buffer[8..bytes_read]).to_string();
+        //let parts: Vec<&str> = formatted_str.split('\x00').collect();
+        //formatted_buff.push_str(&parts.join("\n"));
+        //formatted_buff.push('\n');
     }
 
-    println!("{}", buffer);
+    println!("{}", formatted_buff);
 }
 
 fn main() {
