@@ -104,7 +104,7 @@ fn read_tree_sha(sha_tree: String) {
 
     let mut buffer = [0; 4096];
 
-    let mut formatted_buff = String::new();
+    let mut formatted_buff = Vec::new();
 
     loop {
         let bytes_read = match decoder.read(&mut buffer) {
@@ -113,12 +113,14 @@ fn read_tree_sha(sha_tree: String) {
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
 
-        let formatted_str = String::from_utf8(buffer[8..bytes_read].to_vec()).unwrap();
-        let parts: Vec<&str> = formatted_str.split('\x00').collect();
-        formatted_buff.push_str(&parts.join("\n"));
+        formatted_buff.extend_from_slice(&buffer[8..bytes_read]);
+        //let formatted_str = String::from_utf8(buffer[8..bytes_read].to_vec()).unwrap();
+        //let parts: Vec<&str> = formatted_str.split('\x00').collect();
+        //formatted_buff.push_str(&parts.join("\n"));
     }
+    let formatted_str = String::from_utf8(formatted_buff).unwrap();
 
-    print!("{}", formatted_buff);
+    print!("{}", formatted_str);
 }
 
 fn main() {
