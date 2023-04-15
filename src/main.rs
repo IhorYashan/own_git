@@ -42,7 +42,6 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
 
     let mut buffer = [0; 4096];
 
-    let mut formatted_buff = String::new();
     loop {
         let bytes_read = match decoder.read(&mut buffer) {
             Ok(0) => break,
@@ -50,13 +49,8 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
 
-        //std::io::stdout().write_all(&buffer[8..bytes_read]).unwrap();
-
-        let formatted_str = String::from_utf8(buffer[8..bytes_read].to_vec()).unwrap();
-        let parts: Vec<&str> = formatted_str.split('\x00').collect();
-        formatted_buff.push_str(&parts.join("\n"));
+        std::io::stdout().write_all(&buffer[8..bytes_read]).unwrap();
     }
-    print!("{}", formatted_buff);
 }
 
 fn write_blob(content_blob_file: Vec<u8>) {
@@ -110,6 +104,8 @@ fn read_tree_sha(sha_tree: String) {
 
     let mut buffer = [0; 4096];
 
+    let mut formatted_buff = String::new();
+
     loop {
         let bytes_read = match decoder.read(&mut buffer) {
             Ok(0) => break,
@@ -117,10 +113,12 @@ fn read_tree_sha(sha_tree: String) {
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
 
-        std::io::stdout().write_all(&buffer[..bytes_read]).unwrap();
+        let formatted_str = String::from_utf8(buffer[8..bytes_read].to_vec()).unwrap();
+        let parts: Vec<&str> = formatted_str.split('\x00').collect();
+        formatted_buff.push_str(&parts.join("\n"));
     }
 
-    //println!("decoded_data : {}", decoded_data);
+    print!("{}", formatted_buff);
 }
 
 fn main() {
