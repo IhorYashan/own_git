@@ -113,10 +113,10 @@ fn read_tree_sha(sha_tree: String) {
         };
 
         formatted_buff = String::from_utf8_lossy(&buffer[8..bytes_read]).to_string();
-        let formatted_buff: String = formatted_buff
-            .split('\x00') // Split input_str by null bytes
-            .filter(|s| !s.is_empty()) // Filter out empty substrings
-            .map(|s| format!("{}\n", s)) // Add newline character to each substring
+        formatted_buff
+            .split('\x00')
+            .filter(|s| !s.is_empty())
+            .map(|s| format!("{}\n", s))
             .collect();
     }
 
