@@ -90,18 +90,9 @@ fn read_tree_sha(sha_tree: String) {
     //let mut file_content = Vec::new();
 
     let mut decoder = ZlibDecoder::new(sha_tree.as_bytes());
-
-    let mut buffer = [0; 4096];
-
-    loop {
-        let bytes_read = match decoder.read(&mut buffer) {
-            Ok(0) => break,
-            Ok(n) => n,
-            Err(e) => panic!("Unable to read from decoder: {:?}", e),
-        };
-
-        std::io::stdout().write_all(&buffer[..bytes_read]).unwrap();
-    }
+    let mut s = String::new();
+    decoder.read_to_string(&mut s).unwrap();
+    println!("Tree sha : {}", s);
 }
 
 fn main() {
