@@ -49,7 +49,7 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
 
-        std::io::stdout().write_all(&buffer[..bytes_read]).unwrap();
+        std::io::stdout().write_all(&buffer[8..bytes_read]).unwrap();
     }
 }
 
@@ -87,21 +87,34 @@ fn parse_args(args: &String) -> (&str, &str) {
 }
 
 fn read_tree_sha(sha_tree: String) {
-    //let mut file_content = Vec::new();
+    let mut file_content = Vec::new();
 
     let hash_dir = &sha_tree[..2];
     //println!("hash_dir : {}", hash_dir);
     let hash_tree_object = &sha_tree[2..];
-    println!("hash_dir : {}", hash_dir);
-    let bytes = hex::decode(sha_tree).unwrap();
+    println!("hash_dir : {}", hash_tree_object);
 
-    println!("{:?}", bytes);
-    let mut decoder = ZlibDecoder::new(&bytes[2..]);
+    let full_path = ".git/objects/".to_string() + &hash_dir + &hash_tree_object;
+    let mut full_path = File::open(&full_path).unwrap();
+    full_path.read_to_end(&mut file_content).unwrap();
 
-    let mut decoded_data = String::new();
-    decoder.read_to_string(&mut decoded_data).unwrap();
+    let compressed_data = &file_content[..];
 
-    println!("decoded_data : {}", decoded_data);
+    let mut decoder = ZlibDecoder::new(compressed_data);
+
+    let mut buffer = [0; 4096];
+
+    loop {
+        let bytes_read = match decoder.read(&mut buffer) {
+            Ok(0) => break,
+            Ok(n) => n,
+            Err(e) => panic!("Unable to read from decoder: {:?}", e),
+        };
+
+        std::io::stdout().write_all(&buffer[..bytes_read]).unwrap();
+    }
+
+    //println!("decoded_data : {}", decoded_data);
 }
 
 fn main() {
