@@ -100,6 +100,8 @@ fn read_tree_sha(sha_tree: String) {
 
     let compressed_data = &file_content[..];
 
+    let mut decoder = ZlibDecoder::new(compressed_data);
+
     let mut buffer = [0; 4096];
 
     loop {
