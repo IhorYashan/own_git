@@ -111,18 +111,9 @@ fn read_tree_sha(sha_tree: String) {
             Ok(n) => n,
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
-
-        for i in 8..bytes_read {
-            if buffer[i] == b'\x00' {
-                buffer[i] = b'\n';
-            }
-        }
-
-        let formatted_str = String::from_utf8_lossy(&buffer[8..bytes_read]);
-        formatted_buff.push_str(&formatted_str);
     }
 
-    println!("{}", formatted_buff);
+    println!("{}", buffer);
 }
 
 fn main() {
