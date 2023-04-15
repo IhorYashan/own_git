@@ -112,14 +112,17 @@ fn read_tree_sha(sha_tree: String) {
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
 
-        //std::io::stdout().write_all(&buffer[..bytes_read]).unwrap();
+        for i in 8..bytes_read {
+            if buffer[i] == b'\x00' {
+                buffer[i] = b'\n';
+            }
+        }
+
         let formatted_str = String::from_utf8_lossy(&buffer[8..bytes_read]);
-        let parts: Vec<&str> = formatted_str.split('\x00').collect();
-        formatted_buff.push_str(&parts.join("\n"));
-        formatted_buff.push('\n');
+        formatted_buff.push_str(&formatted_str);
     }
 
-    println!("decoded_data : {}", formatted_buff);
+    println!("{}", formatted_buff);
 }
 
 fn main() {
