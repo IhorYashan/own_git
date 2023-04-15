@@ -94,7 +94,7 @@ fn read_tree_sha(sha_tree: String) {
     let hash_tree_object = &sha_tree[2..];
     //println!("hash_dir : {}", hash_tree_object);
 
-    let full_path = ".git/objects/".to_string() + &hash_dir + &hash_tree_object;
+    let full_path = ".git/objects/".to_string() + &hash_dir + "/" + &hash_tree_object;
     let mut full_path = File::open(&full_path).unwrap();
     full_path.read_to_end(&mut file_content).unwrap();
 
