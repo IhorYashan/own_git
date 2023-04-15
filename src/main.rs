@@ -88,7 +88,7 @@ fn parse_args(args: &String) -> (&str, &str) {
 
 fn read_tree_sha(sha_tree: String) {
     //let mut file_content = Vec::new();
-
+    println!("in func {}", sha_tree);
     let mut decoder = ZlibDecoder::new(sha_tree.as_bytes());
     let mut s = String::new();
     decoder.read_to_string(&mut s).unwrap();
@@ -118,7 +118,7 @@ fn main() {
 
     if args[1] == "ls-tree" && args[2] == "--name-only" {
         let sha_tree = &args[3];
-
+        println!("{}", sha_tree);
         read_tree_sha(sha_tree.to_string());
     }
 }
