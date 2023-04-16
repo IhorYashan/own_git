@@ -123,7 +123,7 @@ fn read_tree_sha(sha_tree: String) {
         if part.contains(' ') {
             if let Some(word) = part.split(' ').nth(1) {
                 print!("{}", word);
-                print!("\\n");
+                print!("\n");
             }
         }
     }
