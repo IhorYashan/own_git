@@ -116,10 +116,10 @@ fn read_tree_sha(sha_tree: String) {
         formatted_buff = String::from_utf8_lossy(&buffer[8..bytes_read]).to_string();
     }
 
-    let buff = buff.replace("\\\\", "\\");
-    let buff = buff.replace("\\x00", "\x00");
+    let formatted_buff = formatted_buff.replace("\\\\", "\\");
+    let formatted_buff = formatted_buff.replace("\\x00", "\x00");
 
-    let parts: Vec<&str> = buff.split('\x00').collect();
+    let parts: Vec<&str> = formatted_buff.split('\x00').collect();
 
     for part in parts {
         if part.starts_with(' ') {
