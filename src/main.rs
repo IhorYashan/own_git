@@ -115,13 +115,7 @@ fn read_tree_sha(sha_tree: String) {
         formatted_buff = String::from_utf8_lossy(&buffer[8..bytes_read]).to_string();
     }
 
-    let formatted_buff_result: String = formatted_buff
-        .split('\x00')
-        .filter(|s| !s.is_empty())
-        .map(|s| format!("{}\n", s))
-        .collect();
-
-    println!("{}", formatted_buff_result.replace("\x00", "\\n"));
+    println!("formatted_buff : {}", formatted_buff);
 }
 
 fn main() {
