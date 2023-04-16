@@ -104,7 +104,6 @@ fn read_tree_sha(sha_tree: String) {
 
     let mut buffer = [0; 4096];
     let mut formatted_buff = String::new();
-    let mut result_buff = String::new();
 
     loop {
         let bytes_read = match decoder.read(&mut buffer) {
@@ -123,7 +122,8 @@ fn read_tree_sha(sha_tree: String) {
     for part in parts {
         if part.contains(' ') {
             if let Some(word) = part.split(' ').nth(1) {
-                print!("{}\\n", word);
+                print!("{}", word);
+                print!("\\n");
             }
         }
     }
