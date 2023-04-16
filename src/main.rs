@@ -104,6 +104,7 @@ fn read_tree_sha(sha_tree: String) {
 
     let mut buffer = [0; 4096];
     let mut formatted_buff = String::new();
+    let mut result_buff = String::new();
 
     loop {
         let bytes_read = match decoder.read(&mut buffer) {
@@ -115,6 +116,18 @@ fn read_tree_sha(sha_tree: String) {
         formatted_buff = String::from_utf8_lossy(&buffer[8..bytes_read]).to_string();
     }
 
+    let buff = buff.replace("\\\\", "\\");
+    let buff = buff.replace("\\x00", "\x00");
+
+    let parts: Vec<&str> = buff.split('\x00').collect();
+
+    for part in parts {
+        if part.starts_with(' ') {
+            if let Some(word) = part.split(' ').nth(1) {
+                println!("{}", word);
+            }
+        }
+    }
     println!("formatted_buff : {}", formatted_buff);
 }
 
