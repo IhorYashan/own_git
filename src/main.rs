@@ -106,8 +106,20 @@ fn read_tree_sha(sha_tree: String) {
 
     let compressed_data = &file_content[..];
 
+    let mut decoder = ZlibDecoder::new(compressed_data);
+
+    let mut buffer = [0; 4096];
     let mut formatted_buff = String::new();
-    let (buffer, bytes) = decode_data(compressed_data);
+
+    let mut bytes = 0;
+    loop {
+        let bytes_read = match decoder.read(&mut buffer) {
+            Ok(0) => break,
+            Ok(n) => n,
+            Err(e) => panic!("Unable to read from decoder: {:?}", e),
+        };
+        bytes = bytes_read;
+    }
 
     formatted_buff = String::from_utf8_lossy(&buffer[8..bytes]).to_string();
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
