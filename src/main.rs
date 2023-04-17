@@ -133,7 +133,7 @@ fn read_tree_sha(sha_tree: String) {
     let parts: Vec<&str> = formatted_buff.split('\x00').collect();
 
     println!("parts : {:?}", parts);
-    println!(" ----  ")
+    println!(" ----  ");
     println!(" ---- ");
     for part in parts {
         if part.contains(' ') {
