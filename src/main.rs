@@ -1,7 +1,6 @@
 extern crate hex;
 extern crate sha1;
 
-use anyhow::Error;
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
 use flate2::Compression;
@@ -17,22 +16,19 @@ use crate::sha1::Digest;
 
 use sha1::Sha1;
 
-fn decode_data(compressed_data: &[u8]) -> Result<(), anyhow::Error> {
+fn decode_data(compressed_data: &[u8]) -> (Vec<u8>, usize) {
     let mut decoder = ZlibDecoder::new(compressed_data);
     let mut buffer = [0; 4096];
     let mut bytes = 0;
-
     loop {
         let bytes_read = match decoder.read(&mut buffer) {
             Ok(0) => break,
             Ok(n) => n,
-            Err(e) => return Err(anyhow::Error::new(e)),
+            Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
         bytes = bytes_read;
-
-        std::io::stdout().write_all(&buffer[8..bytes])?;
     }
-    Ok(())
+    (buffer.to_vec(), bytes)
 }
 
 fn do_git_init(args: &Vec<String>) {
@@ -56,23 +52,10 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     path_to_bolob_file.read_to_end(&mut file_content).unwrap();
 
     let compressed_data = &file_content[..];
-    decode_data(compressed_data);
-    /*
-       let mut decoder = ZlibDecoder::new(compressed_data);
+    let (buffer, bytes) = decode_data(compressed_data);
 
-       let mut buffer = [0; 4096];
-       let mut bytes = 0;
-       loop {
-           let bytes_read = match decoder.read(&mut buffer) {
-               Ok(0) => break,
-               Ok(n) => n,
-               Err(e) => panic!("Unable to read from decoder: {:?}", e),
-           };
-           bytes = bytes_read;
-           //
-       }
-       std::io::stdout().write_all(&buffer[8..bytes]).unwrap();
-    */
+    std::io::stdout().write_all(&buffer[8..bytes]).unwrap();
+
     //print!("{}", buffer);
 }
 
@@ -123,20 +106,8 @@ fn read_tree_sha(sha_tree: String) {
 
     let compressed_data = &file_content[..];
 
-    let mut decoder = ZlibDecoder::new(compressed_data);
-
-    let mut buffer = [0; 4096];
     let mut formatted_buff = String::new();
-
-    let mut bytes = 0;
-    loop {
-        let bytes_read = match decoder.read(&mut buffer) {
-            Ok(0) => break,
-            Ok(n) => n,
-            Err(e) => panic!("Unable to read from decoder: {:?}", e),
-        };
-        bytes = bytes_read;
-    }
+    let (buffer, bytes) = decode_data(compressed_data);
 
     formatted_buff = String::from_utf8_lossy(&buffer[8..bytes]).to_string();
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
