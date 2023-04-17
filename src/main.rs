@@ -104,29 +104,35 @@ fn read_tree_sha(sha_tree: String) {
     let mut full_path = File::open(&full_path).unwrap();
     full_path.read_to_end(&mut file_content).unwrap();
 
-    let compressed_data = &file_content[..];
-
-    let mut decoder = ZlibDecoder::new(compressed_data);
-
-    let mut buffer = [0; 4096];
     let mut formatted_buff = String::new();
+    let compressed_data = &file_content[..];
+    let (buffer, bytes) = decode_data(compressed_data);
+    /*
+       let mut decoder = ZlibDecoder::new(compressed_data);
 
-    let mut bytes = 0;
-    loop {
-        let bytes_read = match decoder.read(&mut buffer) {
-            Ok(0) => break,
-            Ok(n) => n,
-            Err(e) => panic!("Unable to read from decoder: {:?}", e),
-        };
-        bytes = bytes_read;
-    }
+       let mut buffer = [0; 4096];
 
+       let mut bytes = 0;
+       loop {
+           let bytes_read = match decoder.read(&mut buffer) {
+               Ok(0) => break,
+               Ok(n) => n,
+               Err(e) => panic!("Unable to read from decoder: {:?}", e),
+           };
+           bytes = bytes_read;
+       }
+    */
+
+    println!("buffer {}", buffer);
     formatted_buff = String::from_utf8_lossy(&buffer[8..bytes]).to_string();
+    println!("formatted_buff {}", formatted_buff);
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
+    println!("formatted_buff {}", formatted_buff);
     let formatted_buff = formatted_buff.replace("\\\\", "\\");
-
+    println!("formatted_buff {}", formatted_buff);
     let parts: Vec<&str> = formatted_buff.split('\x00').collect();
 
+    println!("parts : {}", parts);
     for part in parts {
         if part.contains(' ') {
             if let Some(word) = part.split(' ').nth(1) {
