@@ -41,18 +41,19 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     let mut decoder = ZlibDecoder::new(compressed_data);
 
     let mut buffer = [0; 4096];
-
+    let mut bytes = 0;
     loop {
         let bytes_read = match decoder.read(&mut buffer) {
             Ok(0) => break,
             Ok(n) => n,
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
-
-        // std::io::stdout().write_all(&buffer[8..bytes_read]).unwrap();
+        bytes = bytes_read;
+        //
     }
+    std::io::stdout().write_all(&buffer[8..bytes]).unwrap();
 
-    print("{}", buffer);
+    //print!("{}", buffer);
 }
 
 fn write_blob(content_blob_file: Vec<u8>) {
@@ -107,15 +108,17 @@ fn read_tree_sha(sha_tree: String) {
     let mut buffer = [0; 4096];
     let mut formatted_buff = String::new();
 
+    let mut bytes = 0;
     loop {
         let bytes_read = match decoder.read(&mut buffer) {
             Ok(0) => break,
             Ok(n) => n,
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
+        bytes = bytes_read;
     }
 
-    formatted_buff = String::from_utf8_lossy(&buffer[8..bytes_read]).to_string();
+    formatted_buff = String::from_utf8_lossy(&buffer[8..bytes]).to_string();
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
     let formatted_buff = formatted_buff.replace("\\\\", "\\");
 
