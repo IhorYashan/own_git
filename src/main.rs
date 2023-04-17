@@ -113,7 +113,7 @@ fn read_tree_sha(sha_tree: String) {
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
 
     let formatted_buff = formatted_buff.replace("\\\\", "\\");
-    println!("formatted_buff {}", formatted_buff);
+    print!("formatted_buff {}", formatted_buff);
     let parts: Vec<&str> = formatted_buff.split('\x00').collect();
 
     for part in parts {
