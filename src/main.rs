@@ -49,8 +49,10 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
 
-        std::io::stdout().write_all(&buffer[8..bytes_read]).unwrap();
+        // std::io::stdout().write_all(&buffer[8..bytes_read]).unwrap();
     }
+
+    print("{}", buffer);
 }
 
 fn write_blob(content_blob_file: Vec<u8>) {
@@ -111,9 +113,9 @@ fn read_tree_sha(sha_tree: String) {
             Ok(n) => n,
             Err(e) => panic!("Unable to read from decoder: {:?}", e),
         };
-
-        formatted_buff = String::from_utf8_lossy(&buffer[8..bytes_read]).to_string();
     }
+
+    formatted_buff = String::from_utf8_lossy(&buffer[8..bytes_read]).to_string();
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
     let formatted_buff = formatted_buff.replace("\\\\", "\\");
 
