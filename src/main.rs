@@ -123,7 +123,7 @@ fn read_tree_sha(sha_tree: String) {
        }
     */
 
-    println!("buffer {}", buffer);
+    println!("buffer {:?}", buffer);
     formatted_buff = String::from_utf8_lossy(&buffer[8..bytes]).to_string();
     println!("formatted_buff {}", formatted_buff);
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
@@ -132,7 +132,7 @@ fn read_tree_sha(sha_tree: String) {
     println!("formatted_buff {}", formatted_buff);
     let parts: Vec<&str> = formatted_buff.split('\x00').collect();
 
-    println!("parts : {}", parts);
+    println!("parts : {:?}", parts);
     for part in parts {
         if part.contains(' ') {
             if let Some(word) = part.split(' ').nth(1) {
