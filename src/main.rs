@@ -42,7 +42,7 @@ fn do_git_init(args: &Vec<String>) {
         fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
         println!("Initialized git directory")
     } else {
-        println!("unknown command: {}", args[1])
+        // println!("unknown command: {}", args[1])
     }
 }
 
