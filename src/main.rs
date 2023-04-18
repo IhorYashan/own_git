@@ -112,7 +112,7 @@ fn read_tree_sha(sha_tree: String) {
 
     let parts: Vec<&str> = formatted_buff
         .split('\x00')
-        .filter(|&word| word == "tree")
+        .filter(|&word| !word == "tree")
         .collect();
 
     println!("{:?}", parts);
