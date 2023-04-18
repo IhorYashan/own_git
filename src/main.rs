@@ -115,6 +115,9 @@ fn read_tree_sha(sha_tree: String) {
     //println!("{:?}", parts);
     for part in parts {
         if part.contains(' ') {
+            if part == "tree" {
+                continue;
+            }
             if let Some(word) = part.split(' ').nth(1) {
                 print!("{}\n", word);
             }
