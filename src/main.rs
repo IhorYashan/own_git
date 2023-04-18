@@ -18,10 +18,18 @@ use sha1::Sha1;
 
 fn decode_data(compressed_data: &[u8]) -> (String, usize) {
     let mut decoder = ZlibDecoder::new(compressed_data);
-    //let mut buffer = [0; 4096];
+    let mut buffer = [0; 4096];
     let mut s_buffer = String::new();
-    decoder.read_to_string(&mut s_buffer).unwrap();
     let mut bytes = 0;
+    loop {
+        let bytes_read = match decoder.read(&mut buffer) {
+            Ok(0) => break,
+            Ok(n) => n,
+            Err(e) => panic!("Unable to read from decoder: {:?}", e),
+        };
+        bytes = bytes_read;
+    }
+    s_buffer.push_str(std::str::from_utf8(&buffer[..bytes]).unwrap());
 
     (s_buffer, bytes)
 }
@@ -48,7 +56,7 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
 
     let compressed_data = &file_content[..];
     let (buffer, bytes) = decode_data(compressed_data);
-    print!("{}", &buffer[8..]);
+    print!("{}", buffer);
     //std::io::stdout().write_all(&buffer[8..bytes]).unwrap();
 }
 
@@ -87,6 +95,7 @@ fn read_tree_sha(sha_tree: String) {
     let mut file_content = Vec::new();
 
     let hash_dir = &sha_tree[..2];
+
     let hash_tree_object = &sha_tree[2..];
 
     let full_path = ".git/objects/".to_string() + &hash_dir + "/" + &hash_tree_object;
@@ -96,9 +105,8 @@ fn read_tree_sha(sha_tree: String) {
     let mut formatted_buff = String::new();
     let compressed_data = &file_content[..];
     let (buffer, bytes) = decode_data(compressed_data);
-    println!("buffer :{}", buffer);
-    formatted_buff = buffer;
 
+    formatted_buff = buffer;
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
     let formatted_buff = formatted_buff.replace("\\\\", "\\");
     let parts: Vec<&str> = formatted_buff.split('\x00').collect();
