@@ -93,11 +93,13 @@ fn read_tree_sha(sha_tree: String) {
     let mut full_path = File::open(&full_path).unwrap();
     full_path.read_to_end(&mut file_content).unwrap();
 
-    //let mut formatted_buff = String::new();
+    let mut formatted_buff = String::new();
     let compressed_data = &file_content[..];
     let (buffer, bytes) = decode_data(compressed_data);
 
-    let mut formatted_buff = String::from_utf8_lossy(buffer.as_bytes()).to_string();
+    formatted_buff = String::from_utf8(buffer.into())
+        .map_err(|non_utf8| String::from_utf8_lossy(non_utf8.as_bytes()).into_owned())
+        .unwrap();
 
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
     let formatted_buff = formatted_buff.replace("\\\\", "\\");
