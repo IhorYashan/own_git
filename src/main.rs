@@ -107,7 +107,7 @@ fn read_tree_sha(sha_tree: String) {
     let (buffer, bytes) = decode_data(compressed_data);
     println!("{}", buffer);
 
-    let formatted_buff = formatted_buff.replace("\\x00", "\x00");
+    let buffer = formatted_buff.replace("\\x00", "\x00");
     let formatted_buff = formatted_buff.replace("\\\\", "\\");
 
     let parts: Vec<&str> = formatted_buff.split('\x00').collect();
