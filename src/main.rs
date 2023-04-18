@@ -110,14 +110,15 @@ fn read_tree_sha(sha_tree: String) {
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
     let formatted_buff = formatted_buff.replace("\\\\", "\\");
 
-    let parts: Vec<&str> = formatted_buff.split('\x00').collect();
-    //println!("{}", buffer);
+    let parts: Vec<&str> = formatted_buff
+        .split('\x00')
+        .filter(|&word| word == "tree")
+        .collect();
+
+    println!("{:?}", parts);
     //println!("{:?}", parts);
     for part in parts {
         if part.contains(' ') {
-            if part == "tree" {
-                continue;
-            }
             if let Some(word) = part.split(' ').nth(1) {
                 print!("{}\n", word);
             }
