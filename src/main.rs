@@ -42,7 +42,7 @@ fn do_git_init(args: &Vec<String>) {
         fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
         println!("Initialized git directory")
     } else {
-        //   println!("unknown command: {}", args[1])
+        println!("unknown command: {}", args[1])
     }
 }
 
@@ -57,7 +57,6 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     let compressed_data = &file_content[..];
     let (buffer, bytes) = decode_data(compressed_data);
     print!("{}", &buffer[8..]);
-    //std::io::stdout().write_all(&buffer[8..bytes]).unwrap();
 }
 
 fn write_blob(content_blob_file: Vec<u8>) {
@@ -91,6 +90,18 @@ fn parse_args(args: &String) -> (&str, &str) {
     (hash_path, hash_file)
 }
 
+fn write_tree() {
+    let paths = fs::read_dir(".git/objects").unwrap();
+    let mut result_dir_paths = Vec::new();
+    for entry in paths {
+        let entry = entry.unwrap();
+        let entry_name = entry.file_name();
+        let entry_name_string = entry_name.to_string_lossy().into_owned();
+        result_dir_paths.push(entry_name_string);
+    }
+    print!("{:?}", result_dir_paths);
+}
+
 fn read_tree_sha(sha_tree: String) {
     let mut file_content = Vec::new();
 
@@ -105,19 +116,12 @@ fn read_tree_sha(sha_tree: String) {
     let mut formatted_buff = String::new();
     let compressed_data = &file_content[..];
     let (formatted_buff, bytes) = decode_data(compressed_data);
-    //println!("{}", formatted_buff);
 
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
     let formatted_buff = formatted_buff.replace("\\\\", "\\");
 
-    let parts: Vec<&str> = formatted_buff
-        .split('\x00')
-        .skip(1)
-        //.filter(|&word| word != "tree")
-        .collect();
+    let parts: Vec<&str> = formatted_buff.split('\x00').skip(1).collect();
 
-    //println!("{:?}", parts);
-    //println!("{:?}", parts);
     for part in parts {
         if part.contains(' ') {
             if let Some(word) = part.split(' ').nth(1) {
@@ -130,7 +134,7 @@ fn read_tree_sha(sha_tree: String) {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    do_git_init(&args);
+    // do_git_init(&args);
 
     let path_to_objects = ".git/objects/".to_string();
 
@@ -154,5 +158,8 @@ fn main() {
         //let sha_tree = "acada1c1122b334b98a15430aa2fae91d024c7ca";
 
         read_tree_sha(sha_tree.to_string());
+    }
+    if args[1] == "write-tree" {
+        write_tree();
     }
 }
