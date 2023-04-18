@@ -56,7 +56,7 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
 
     let compressed_data = &file_content[..];
     let (buffer, bytes) = decode_data(compressed_data);
-    print!("{}", buffer);
+    print!("{}", &buffer[8..]);
     //std::io::stdout().write_all(&buffer[8..bytes]).unwrap();
 }
 
