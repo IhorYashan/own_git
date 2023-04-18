@@ -101,6 +101,15 @@ fn write_tree() {
         result_dir_paths.push(entry_name_string);
     }
     print!("{:?}", result_dir_paths);
+    let mut file_content = Vec::new();
+    let path_file = "./".to_owned() + &result_dir_paths[0].to_string();
+    let mut path_file = File::open(&path_file).unwrap();
+
+    path_file.read_to_end(&mut file_content).unwrap();
+
+    let compressed_data = &file_content[..];
+    let (buffer, bytes) = decode_data(compressed_data);
+    print!("{}", &buffer[8..]);
 }
 
 fn read_tree_sha(sha_tree: String) {
