@@ -92,7 +92,7 @@ fn parse_args(args: &String) -> (&str, &str) {
 }
 
 fn write_tree() {
-    let paths = fs::read_dir("./monkey").unwrap();
+    let paths = fs::read_dir("./doo").unwrap();
     let mut result_dir_paths = Vec::new();
     for entry in paths {
         let entry = entry.unwrap();
