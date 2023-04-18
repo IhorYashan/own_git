@@ -16,19 +16,14 @@ use crate::sha1::Digest;
 
 use sha1::Sha1;
 
-fn decode_data(compressed_data: &[u8]) -> (Vec<u8>, usize) {
+fn decode_data(compressed_data: &[u8]) -> (String, usize) {
     let mut decoder = ZlibDecoder::new(compressed_data);
-    let mut buffer = [0; 4096];
+    //let mut buffer = [0; 4096];
+    let mut s_buffer = String::new();
+    decoder.read_to_string(&mut s_buffer).unwrap();
     let mut bytes = 0;
-    loop {
-        let bytes_read = match decoder.read(&mut buffer) {
-            Ok(0) => break,
-            Ok(n) => n,
-            Err(e) => panic!("Unable to read from decoder: {:?}", e),
-        };
-        bytes = bytes_read;
-    }
-    (buffer.to_vec(), bytes)
+
+    (s_buffer, bytes)
 }
 
 fn do_git_init(args: &Vec<String>) {
@@ -53,15 +48,11 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
 
     let compressed_data = &file_content[..];
     let (buffer, bytes) = decode_data(compressed_data);
-
-    std::io::stdout().write_all(&buffer[8..bytes]).unwrap();
-
-    //print!("{}", buffer);
+    print!("{}", buffer);
+    //std::io::stdout().write_all(&buffer[8..bytes]).unwrap();
 }
 
 fn write_blob(content_blob_file: Vec<u8>) {
-    //let data_to_compress = content_blob_file.as_bytes();
-
     let header_blob = format!("blob {}\x00", content_blob_file.len());
 
     let data_to_compress =
@@ -96,9 +87,7 @@ fn read_tree_sha(sha_tree: String) {
     let mut file_content = Vec::new();
 
     let hash_dir = &sha_tree[..2];
-    //println!("hash_dir : {}", hash_dir);
     let hash_tree_object = &sha_tree[2..];
-    //println!("hash_dir : {}", hash_tree_object);
 
     let full_path = ".git/objects/".to_string() + &hash_dir + "/" + &hash_tree_object;
     let mut full_path = File::open(&full_path).unwrap();
@@ -108,15 +97,11 @@ fn read_tree_sha(sha_tree: String) {
     let compressed_data = &file_content[..];
     let (buffer, bytes) = decode_data(compressed_data);
 
-    formatted_buff = String::from_utf8_lossy(&buffer[8..bytes]).to_string();
+    formatted_buff = buffer;
 
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
-
     let formatted_buff = formatted_buff.replace("\\\\", "\\");
-
     let parts: Vec<&str> = formatted_buff.split('\x00').collect();
-
-    //print!("formatted_buff {:?}", parts);
 
     for part in parts {
         if part.contains(' ') {
