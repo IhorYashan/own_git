@@ -102,7 +102,7 @@ fn write_tree() {
     }
     result_dir_paths = result_dir_paths
         .into_iter()
-        .filter(|file| file.contains("."))
+        .filter(|file| !file.contains("."))
         .collect();
     print!("{:?}", result_dir_paths);
     let mut file_content = Vec::new();
