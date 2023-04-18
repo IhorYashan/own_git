@@ -29,7 +29,7 @@ fn decode_data(compressed_data: &[u8]) -> (String, usize) {
         };
         bytes = bytes_read;
     }
-    s_buffer.push_str(std::str::from_utf8(&buffer[..bytes]).unwrap());
+    s_buffer.push_str(std::str::from_utf8_lossy(&buffer[..bytes]).unwrap());
 
     (s_buffer, bytes)
 }
