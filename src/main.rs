@@ -11,14 +11,11 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::Read;
+use tokio::fs::read_dir;
 
 use crate::sha1::Digest;
 
 use sha1::Sha1;
-use std::env;
-
-use std::io::{self, Write};
-use std::path::Path;
 
 fn decode_data(compressed_data: &[u8]) -> (String, usize) {
     let mut decoder = ZlibDecoder::new(compressed_data);
@@ -93,41 +90,9 @@ fn parse_args(args: &String) -> (&str, &str) {
     let (hash_path, hash_file) = (&args[..2], &args[2..]);
     (hash_path, hash_file)
 }
-fn write_tree(path: &Path) -> io::Result<String> {
-    let mut entries: Vec<(String, String)> = Vec::new();
 
-    for entry in fs::read_dir(path)? {
-        let entry = entry?;
-        let entry_name = entry.file_name();
-        let entry_path = entry.path();
-        let entry_sha = if entry_path.is_file() {
-            let file_contents = fs::read(&entry_path)?;
-            let file_sha = sha1::Sha1::from(&file_contents).digest().to_string();
-            file_sha
-        } else if entry_path.is_dir() {
-            let sub_tree = create_tree(&entry_path)?;
-            sub_tree
-        } else {
-            continue;
-        };
-
-        let entry_name = entry_name.to_string_lossy().to_string();
-        entries.push((entry_name, entry_sha));
-    }
-
-    entries.sort_by(|a, b| a.0.cmp(&b.0));
-
-    let mut tree_contents = Vec::new();
-    for (entry_name, entry_sha) in entries {
-        let entry = format!("100644 {} {}\0", entry_name, entry_sha);
-        tree_contents.write_all(entry.as_bytes())?;
-    }
-    let tree_sha = sha1::Sha1::from(&tree_contents).digest().to_string();
-
-    Ok(tree_sha)
-}
-fn write_tree_test() {
-    let paths = fs::read_dir(".git/objects").unwrap();
+fn write_tree() {
+    let paths = fs::read_dir(".").unwrap();
     let mut result_dir_paths = Vec::new();
     for entry in paths {
         let entry = entry.unwrap();
@@ -196,8 +161,6 @@ fn main() {
         read_tree_sha(sha_tree.to_string());
     }
     if args[1] == "write-tree" {
-        let tree = create_tree(".")?;
-
-        println!("{}", tree);
+        write_tree();
     }
 }
