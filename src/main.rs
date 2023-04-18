@@ -105,7 +105,7 @@ fn read_tree_sha(sha_tree: String) {
     let mut formatted_buff = String::new();
     let compressed_data = &file_content[..];
     let (buffer, bytes) = decode_data(compressed_data);
-    //println!("{}", buffer);
+    println!("{}", buffer);
 
     let formatted_buff = formatted_buff.replace("\\x00", "\x00");
     let formatted_buff = formatted_buff.replace("\\\\", "\\");
