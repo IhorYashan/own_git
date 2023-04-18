@@ -134,7 +134,7 @@ fn read_tree_sha(sha_tree: String) {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    // do_git_init(&args);
+    do_git_init(&args);
 
     let path_to_objects = ".git/objects/".to_string();
 
