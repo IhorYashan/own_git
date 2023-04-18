@@ -100,6 +100,10 @@ fn write_tree() {
         let entry_name_string = entry_name.to_string_lossy().into_owned();
         result_dir_paths.push(entry_name_string);
     }
+    result_dir_paths = result_dir_paths
+        .into_iter()
+        .filter(|file| file.contains("."))
+        .collect();
     print!("{:?}", result_dir_paths);
     let mut file_content = Vec::new();
     let path_file = "./".to_owned() + &result_dir_paths[0].to_string();
