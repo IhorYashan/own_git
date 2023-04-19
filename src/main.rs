@@ -62,10 +62,10 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
 
 fn write_blob(path: &String) {
     let content_file = fs::read(path).unwrap();
-    let header_blob = format!("blob {}\x00", content_blob_file.len());
+    let header_blob = format!("blob {}\x00", content_file.len());
 
     let data_to_compress =
-        header_blob + &format!("{}", String::from_utf8(content_blob_file.into()).unwrap());
+        header_blob + &format!("{}", String::from_utf8(content_file.into()).unwrap());
 
     let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
     encoder.write_all(data_to_compress.as_bytes()).unwrap();
