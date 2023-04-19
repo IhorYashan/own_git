@@ -60,9 +60,9 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     print!("{}", &buffer[8..]);
 }
 
-fn write_blob(path: &String) {
+fn write_obj(path: &String, file_type: &str) {
     let content_file = fs::read(path).unwrap();
-    let header_blob = format!("blob {}\x00", content_file.len());
+    let header_blob = format!("{} {}\x00", file_type, content_file.len());
 
     let data_to_compress =
         header_blob + &format!("{}", String::from_utf8(content_file.into()).unwrap());
@@ -93,30 +93,48 @@ fn parse_args(args: &String) -> (&str, &str) {
 }
 //write tree
 fn write_tree() {
-    let paths = fs::read_dir(".").unwrap();
+    let mut sha_out: String = "".to_string();
 
-    let mut result_dir_paths = Vec::new();
-    for entry in paths {
-        let entry = entry.unwrap();
-        let entry_name = entry.file_name();
-        let entry_name_string = entry_name.to_string_lossy().into_owned();
-        result_dir_paths.push(entry_name_string);
+    let mut entries = fs::read_dir(file_path)
+        .unwrap()
+        .map(|res| res.map(|e| e.path()))
+        .collect::<Result<Vec<_>, io::Error>>()
+        .unwrap();
+
+    entries.sort();
+
+    for dir in entries {
+        let mode;
+
+        let path_name = dir.as_path().to_str().unwrap();
+
+        if path_name.contains(".") {
+            continue;
+        }
+
+        let sha_file;
+        if dir.is_dir() {
+            mode = "40000";
+            let sha_file1 = write_tree(&String::from_str(path_name).unwrap());
+
+            sha_file = hex::decode(sha_file1.unwrap()).unwrap();
+        } else {
+            mode = "100644";
+            let sha_file1 = write_obj(&path_name, "blob");
+
+            sha_file = hex::decode(&sha_file1.unwrap()).unwrap();
+        }
+
+        #[allow(unsafe_code)]
+        let s = unsafe { String::from_utf8_unchecked(sha_file) };
+        sha_out += &format!(
+            "{mode} {}\x00{}",
+            dir.file_name().unwrap().to_str().unwrap(),
+            s
+        );
     }
-    result_dir_paths = result_dir_paths
-        .into_iter()
-        .filter(|file| !file.contains("."))
-        .collect();
-    print!("{:?}", result_dir_paths);
-    let mut file_content = Vec::new();
-
-    let path_file = "./vanilla/".to_owned() + &result_dir_paths[2].to_string();
-    let mut path_file = File::open(&path_file).unwrap();
-
-    path_file.read_to_end(&mut file_content).unwrap();
-
-    let compressed_data = &file_content[..];
-    let (buffer, bytes) = decode_data(compressed_data);
-    print!("{}", &buffer[8..]);
+    let res = write_obj(sha_out.into_bytes(), "tree");
+    res
 }
 
 fn read_tree_sha(sha_tree: String) {
@@ -166,7 +184,7 @@ fn main() {
     if args[1] == "hash-object" && args[2] == "-w" {
         //let content_file = fs::read(&args[3].to_string()).unwrap(); //own_git hash-object -w <file>
 
-        write_blob(&args[3]);
+        write_obj(&args[3], "blob");
     }
 
     if args[1] == "ls-tree" && args[2] == "--name-only" {
