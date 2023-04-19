@@ -61,6 +61,9 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
 
 fn write_obj(path: &str, file_type: &str) -> String {
     let content_file = fs::read(path).unwrap();
+
+    #[allow(unsafe_code)]
+    let content_file = unsafe { String::from_utf8_unchecked(content_file.clone()) };
     let header_blob = format!("{} {}\x00", file_type, content_file.len());
 
     let data_to_compress =
