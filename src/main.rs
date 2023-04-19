@@ -11,7 +11,6 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::Read;
-use std::io::Read;
 use std::path::PathBuf;
 use std::str::FromStr;
 
@@ -60,7 +59,7 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     print!("{}", &buffer[8..]);
 }
 
-fn write_obj(path: &String, file_type: &str) {
+fn write_obj(path: &str, file_type: &str) -> String {
     let content_file = fs::read(path).unwrap();
     let header_blob = format!("{} {}\x00", file_type, content_file.len());
 
@@ -85,6 +84,8 @@ fn write_obj(path: &String, file_type: &str) {
 
     fs::create_dir(hash_path_dir).unwrap();
     fs::write(full_hash_path, compressed_data).unwrap();
+
+    hash_blob_file
 }
 
 fn parse_args(args: &String) -> (&str, &str) {
@@ -93,6 +94,7 @@ fn parse_args(args: &String) -> (&str, &str) {
 }
 
 //write tree
+
 fn write_tree(file_path: &str) -> String {
     let mut sha_out: String = String::new();
     let mut entries = fs::read_dir(file_path)
@@ -132,7 +134,7 @@ fn write_tree(file_path: &str) -> String {
         );
     }
 
-    let res = write_obj(sha_out.into_bytes(), "tree");
+    let res = write_obj(&sha_out, "tree");
     res
 }
 
