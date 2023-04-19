@@ -91,8 +91,9 @@ fn parse_args(args: &String) -> (&str, &str) {
     let (hash_path, hash_file) = (&args[..2], &args[2..]);
     (hash_path, hash_file)
 }
+/*
 //write tree
-fn write_tree() {
+fn write_tree(file_path: &String) {
     let mut sha_out: String = "".to_string();
 
     let mut entries = fs::read_dir(file_path)
@@ -117,12 +118,12 @@ fn write_tree() {
             mode = "40000";
             let sha_file1 = write_tree(&String::from_str(path_name).unwrap());
 
-            sha_file = hex::decode(sha_file1.unwrap()).unwrap();
+            sha_file = hex::decode(sha_file1).unwrap();
         } else {
             mode = "100644";
             let sha_file1 = write_obj(&path_name, "blob");
 
-            sha_file = hex::decode(&sha_file1.unwrap()).unwrap();
+            sha_file = hex::decode(&sha_file1).unwrap();
         }
 
         #[allow(unsafe_code)]
@@ -136,7 +137,7 @@ fn write_tree() {
     let res = write_obj(sha_out.into_bytes(), "tree");
     res
 }
-
+*/
 fn read_tree_sha(sha_tree: String) {
     let mut file_content = Vec::new();
 
@@ -195,6 +196,6 @@ fn main() {
         read_tree_sha(sha_tree.to_string());
     }
     if args[1] == "write-tree" {
-        write_tree();
+        //write_tree(&".".to_string());
     }
 }
