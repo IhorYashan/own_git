@@ -107,10 +107,6 @@ fn write_tree(file_path: &str) -> String {
         let mode;
         let path_name = dir.to_str().expect("Failed to convert path to string");
 
-        if path_name.contains('\0') {
-            continue;
-        }
-
         if path_name == "./.git" {
             continue;
         }
@@ -125,20 +121,20 @@ fn write_tree(file_path: &str) -> String {
             let sha_file1 = write_obj(path_name, "blob");
             sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
         }
-
-        let s = unsafe { String::from_utf8_unchecked(sha_file) };
+        #[allow(unsafe_code)]
+        let sha = unsafe { String::from_utf8_unchecked(sha_file) };
         sha_out += &format!(
             "{mode} {}\x00{}",
             dir.file_name()
                 .expect("Failed to get file name")
                 .to_str()
                 .expect("Failed to convert file name to string"),
-            s
+            sha
         );
     }
 
-    let res = write_obj(&sha_out, "tree");
-    res
+    let res_sha = write_obj(&sha_out, "tree");
+    res_sha
 }
 
 fn read_tree_sha(sha_tree: String) {
