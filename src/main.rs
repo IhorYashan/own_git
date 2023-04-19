@@ -1,6 +1,5 @@
 extern crate hex;
 extern crate sha1;
-
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
 use flate2::Compression;
@@ -11,6 +10,7 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::Read;
+use std::str::FromStr;
 use tokio::fs::read_dir;
 
 use crate::sha1::Digest;
@@ -91,53 +91,12 @@ fn parse_args(args: &String) -> (&str, &str) {
     let (hash_path, hash_file) = (&args[..2], &args[2..]);
     (hash_path, hash_file)
 }
-/*
+
 //write tree
 fn write_tree(file_path: &String) {
-    let mut sha_out: String = "".to_string();
-
-    let mut entries = fs::read_dir(file_path)
-        .unwrap()
-        .map(|res| res.map(|e| e.path()))
-        .collect::<Result<Vec<_>, io::Error>>()
-        .unwrap();
-
-    entries.sort();
-
-    for dir in entries {
-        let mode;
-
-        let path_name = dir.as_path().to_str().unwrap();
-
-        if path_name.contains(".") {
-            continue;
-        }
-
-        let sha_file;
-        if dir.is_dir() {
-            mode = "40000";
-            let sha_file1 = write_tree(&String::from_str(path_name).unwrap());
-
-            sha_file = hex::decode(sha_file1).unwrap();
-        } else {
-            mode = "100644";
-            let sha_file1 = write_obj(&path_name, "blob");
-
-            sha_file = hex::decode(&sha_file1).unwrap();
-        }
-
-        #[allow(unsafe_code)]
-        let s = unsafe { String::from_utf8_unchecked(sha_file) };
-        sha_out += &format!(
-            "{mode} {}\x00{}",
-            dir.file_name().unwrap().to_str().unwrap(),
-            s
-        );
-    }
-    let res = write_obj(sha_out.into_bytes(), "tree");
-    res
+    print!("write tree");
 }
-*/
+
 fn read_tree_sha(sha_tree: String) {
     let mut file_content = Vec::new();
 
@@ -196,6 +155,6 @@ fn main() {
         read_tree_sha(sha_tree.to_string());
     }
     if args[1] == "write-tree" {
-        //write_tree(&".".to_string());
+        write_tree(&".".to_string());
     }
 }
