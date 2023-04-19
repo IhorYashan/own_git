@@ -91,7 +91,7 @@ fn parse_args(args: &String) -> (&str, &str) {
     let (hash_path, hash_file) = (&args[..2], &args[2..]);
     (hash_path, hash_file)
 }
-
+//write tree
 fn write_tree() {
     let paths = fs::read_dir(".").unwrap();
 
