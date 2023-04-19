@@ -60,7 +60,8 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     print!("{}", &buffer[8..]);
 }
 
-fn write_blob(content_blob_file: Vec<u8>) {
+fn write_blob(path: &String) {
+    let content_file = fs::read(path).unwrap();
     let header_blob = format!("blob {}\x00", content_blob_file.len());
 
     let data_to_compress =
@@ -107,6 +108,7 @@ fn write_tree() {
         .collect();
     print!("{:?}", result_dir_paths);
     let mut file_content = Vec::new();
+
     let path_file = "./vanilla/".to_owned() + &result_dir_paths[2].to_string();
     let mut path_file = File::open(&path_file).unwrap();
 
@@ -162,9 +164,9 @@ fn main() {
     }
 
     if args[1] == "hash-object" && args[2] == "-w" {
-        let content_file = fs::read(&args[3].to_string()).unwrap(); //own_git hash-object -w <file>
+        //let content_file = fs::read(&args[3].to_string()).unwrap(); //own_git hash-object -w <file>
 
-        write_blob(content_file);
+        write_blob(&args[3]);
     }
 
     if args[1] == "ls-tree" && args[2] == "--name-only" {
