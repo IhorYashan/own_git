@@ -93,8 +93,6 @@ fn parse_args(args: &String) -> (&str, &str) {
     (hash_path, hash_file)
 }
 
-//write tree
-
 fn write_tree(file_path: &str) -> String {
     let mut sha_out: String = String::new();
     let mut entries = fs::read_dir(file_path)
