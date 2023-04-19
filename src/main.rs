@@ -1,5 +1,6 @@
 extern crate hex;
 extern crate sha1;
+use crate::sha1::Digest;
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
 use flate2::Compression;
@@ -10,10 +11,9 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::Read;
+use std::io::Read;
+use std::path::PathBuf;
 use std::str::FromStr;
-use tokio::fs::read_dir;
-
-use crate::sha1::Digest;
 
 use sha1::Sha1;
 
@@ -93,8 +93,47 @@ fn parse_args(args: &String) -> (&str, &str) {
 }
 
 //write tree
-fn write_tree(file_path: &String) {
-    print!("write tree");
+fn write_tree(file_path: &str) -> String {
+    let mut sha_out: String = String::new();
+    let mut entries = fs::read_dir(file_path)
+        .expect("Failed to read directory")
+        .map(|res| res.expect("Failed to read entry").path())
+        .collect::<Vec<PathBuf>>();
+
+    entries.sort();
+
+    for dir in entries {
+        let mode;
+        let path_name = dir.to_str().expect("Failed to convert path to string");
+
+        if path_name.contains(".") {
+            continue;
+        }
+
+        let sha_file;
+        if dir.is_dir() {
+            mode = "40000";
+            let sha_file1 = write_tree(path_name);
+            sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
+        } else {
+            mode = "100644";
+            let sha_file1 = write_obj(path_name, "blob");
+            sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
+        }
+
+        let s = unsafe { String::from_utf8_unchecked(sha_file) };
+        sha_out += &format!(
+            "{mode} {}\x00{}",
+            dir.file_name()
+                .expect("Failed to get file name")
+                .to_str()
+                .expect("Failed to convert file name to string"),
+            s
+        );
+    }
+
+    let res = write_obj(sha_out.into_bytes(), "tree");
+    res
 }
 
 fn read_tree_sha(sha_tree: String) {
