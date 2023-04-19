@@ -189,8 +189,6 @@ fn main() {
     if args[1] == "ls-tree" && args[2] == "--name-only" {
         let sha_tree = &args[3];
 
-        //let sha_tree = "acada1c1122b334b98a15430aa2fae91d024c7ca";
-
         read_tree_sha(sha_tree.to_string());
     }
     if args[1] == "write-tree" {
