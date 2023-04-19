@@ -108,7 +108,7 @@ fn write_tree(file_path: &str) -> String {
         let mode;
         let path_name = dir.to_str().expect("Failed to convert path to string");
 
-        if path_name.contains(".") {
+        if path_name == "./.git" {
             continue;
         }
 
