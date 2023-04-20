@@ -136,6 +136,7 @@ fn write_tree(file_path: &str) -> String {
     let res_sha = write_obj(&sha_out, "tree");
     res_sha
 }
+//read tree
 
 fn read_tree_sha(sha_tree: String) {
     let mut file_content = Vec::new();
