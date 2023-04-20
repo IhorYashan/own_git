@@ -65,9 +65,10 @@ fn write_obj(path: &str, file_type: &str) -> String {
     let content_file = fs::read(path).unwrap();
 
     let header_blob = format!("{} {}\x00", file_type, content_file.len());
+    #[allow(unsafe_code)]
+    let content_file = unsafe { String::from_utf8_unchecked(content_file) };
 
-    let data_to_compress =
-        header_blob + &format!("{}", String::from_utf8(content_file.into()).unwrap());
+    let data_to_compress = header_blob + &format!("{}", content_file);
 
     let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
     encoder.write_all(data_to_compress.as_bytes()).unwrap();
