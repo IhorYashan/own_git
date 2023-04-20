@@ -65,10 +65,9 @@ fn write_obj(path: &str, file_type: &str) -> String {
     let content_file = fs::read(path).unwrap();
 
     let header_blob = format!("{} {}\x00", file_type, content_file.len());
-    #[allow(unsafe_code)]
-    let content_file = unsafe { String::from_utf8_unchecked(content_file) };
 
-    let data_to_compress = header_blob + &format!("{}", content_file);
+    let data_to_compress =
+        header_blob + &format!("{}", String::from_utf8(content_file.into()).unwrap());
 
     let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
     encoder.write_all(data_to_compress.as_bytes()).unwrap();
@@ -112,7 +111,7 @@ fn write_tree(file_path: &str) -> String {
             .as_path()
             .to_str()
             .expect("Failed to convert path to string");
-
+        println!("--- {} --- ", path_name);
         if path_name == "./.git" {
             continue;
         }
