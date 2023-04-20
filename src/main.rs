@@ -59,12 +59,12 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     print!("{}", &buffer[8..]);
 }
 
-fn write_obj(file_data: Vec<u8>, file_type: &str) -> String {
+fn write_obj(content_file: Vec<u8>, file_type: &str) -> String {
     //println!("--- path: {path} --- ");
 
     //let content_file = fs::read(path).unwrap();
 
-    let header_blob = format!("{} {}\x00", file_type, file_data.len());
+    let header_blob = format!("{} {}\x00", file_type, content_file.len());
 
     let data_to_compress =
         header_blob + &format!("{}", String::from_utf8(content_file.into()).unwrap());
@@ -190,7 +190,7 @@ fn main() {
     if args[1] == "hash-object" && args[2] == "-w" {
         let content_file = fs::read(&args[3].to_string()).unwrap(); //own_git hash-object -w <file>
 
-        write_obj(&args[3], "blob");
+        write_obj(content_file, "blob");
     }
 
     if args[1] == "ls-tree" && args[2] == "--name-only" {
