@@ -59,12 +59,12 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
     print!("{}", &buffer[8..]);
 }
 
-fn write_obj(path: &str, file_type: &str) -> String {
-    println!("--- path: {path} --- ");
+fn write_obj(file_data: Vec<u8>, file_type: &str) -> String {
+    //println!("--- path: {path} --- ");
 
-    let content_file = fs::read(path).unwrap();
+    //let content_file = fs::read(path).unwrap();
 
-    let header_blob = format!("{} {}\x00", file_type, content_file.len());
+    let header_blob = format!("{} {}\x00", file_type, file_data.len());
 
     let data_to_compress =
         header_blob + &format!("{}", String::from_utf8(content_file.into()).unwrap());
@@ -111,7 +111,7 @@ fn write_tree(file_path: &str) -> String {
             .as_path()
             .to_str()
             .expect("Failed to convert path to string");
-        println!("--- path_name : {} --- ", path_name);
+        //println!("--- path_name : {} --- ", path_name);
         if path_name == "./.git" {
             continue;
         }
@@ -123,7 +123,8 @@ fn write_tree(file_path: &str) -> String {
             sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
         } else {
             mode = "100644";
-            let sha_file1 = write_obj(path_name, "blob");
+            let content_file = fs::read(&path_name).unwrap();
+            let sha_file1 = write_obj(content_file, "blob");
             sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
         }
         #[allow(unsafe_code)]
@@ -138,7 +139,7 @@ fn write_tree(file_path: &str) -> String {
         );
     }
 
-    let res_sha = write_obj(&sha_out, "tree");
+    let res_sha = write_obj(sha_out.into_bytes(), "tree");
     res_sha
 }
 
@@ -187,7 +188,7 @@ fn main() {
     }
 
     if args[1] == "hash-object" && args[2] == "-w" {
-        //let content_file = fs::read(&args[3].to_string()).unwrap(); //own_git hash-object -w <file>
+        let content_file = fs::read(&args[3].to_string()).unwrap(); //own_git hash-object -w <file>
 
         write_obj(&args[3], "blob");
     }
