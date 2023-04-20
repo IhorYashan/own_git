@@ -80,7 +80,7 @@ fn write_obj(content_file: Vec<u8>, file_type: &str) -> String {
     let hash = hasher.finalize();
     let hash_blob_file = hex::encode(&hash);
 
-    print!("{}", hash_blob_file);
+    // print!("{}", hash_blob_file);
 
     let hash_dir = &hash_blob_file[..2];
     let hash_file = &hash_blob_file[2..];
@@ -192,7 +192,7 @@ fn main() {
     if args[1] == "hash-object" && args[2] == "-w" {
         let content_file = fs::read(&args[3].to_string()).unwrap(); //own_git hash-object -w <file>
 
-        write_obj(content_file, "blob");
+        print!("{}", write_obj(content_file, "blob"));
     }
 
     if args[1] == "ls-tree" && args[2] == "--name-only" {
@@ -201,6 +201,6 @@ fn main() {
         read_tree_sha(sha_tree.to_string());
     }
     if args[1] == "write-tree" {
-        write_tree(&".".to_string());
+        print!("{}", write_tree(&".".to_string()));
     }
 }
