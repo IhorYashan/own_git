@@ -60,8 +60,7 @@ fn read_blob(path_to_bolob_file: String, hash_file: String) {
 }
 
 fn write_obj(path: &str, file_type: &str) -> String {
-
-    prinln!t("--- path: {path} --- ");
+    println!("--- path: {path} --- ");
 
     let content_file = fs::read(path).unwrap();
 
