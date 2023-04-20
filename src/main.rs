@@ -111,7 +111,7 @@ fn write_tree(file_path: &str) -> String {
             .as_path()
             .to_str()
             .expect("Failed to convert path to string");
-        println!("--- {} --- ", path_name);
+        println!("--- path_name : {} --- ", path_name);
         if path_name == "./.git" {
             continue;
         }
