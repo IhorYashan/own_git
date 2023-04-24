@@ -171,4 +171,9 @@ pub mod git {
             }
         }
     }
+
+    pub fn do_commit() {
+
+        
+    }
 }
