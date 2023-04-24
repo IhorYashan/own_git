@@ -176,10 +176,10 @@ pub mod git {
     pub fn do_commit(tree_sha: String, commit_sha: String, message: String) -> String {
         let content_commit = format!(
             "tree {}\n
-             parent {}\n
-             author Scot Chacon <schacon@gmail.com> 1243040974 -0700\n
-             committer Scot Chacon <schacon@gmail.com> 1243040974 -0700\n\n
-             {}\n",
+parent {}\n
+author Scot Chacon <schacon@gmail.com> 1243040974 -0700\n
+committer Scot Chacon <schacon@gmail.com> 1243040974 -0700\n\n
+{}\n",
             tree_sha, commit_sha, message
         );
 
