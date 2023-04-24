@@ -192,7 +192,7 @@ pub mod git {
         let hash = hasher.finalize();
         let hash_commit_file = hex::encode(&hash);
         print!("{}", hash_commit_file);
-        //write commit obj
+
         write_obj(hash_commit_file.into_bytes(), "commit");
         //println!("Content commit:\n{}", content_commit);
     }
