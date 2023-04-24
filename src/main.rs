@@ -2,8 +2,6 @@ use git_starter_rust::git;
 use std::env;
 use std::fs;
 
-//mod git_tree;
-
 fn main() {
     let args: Vec<String> = env::args().collect();
 
