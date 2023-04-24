@@ -6,15 +6,11 @@ pub mod git {
     use flate2::write::ZlibEncoder;
     use flate2::Compression;
     use sha1::{Digest, Sha1};
-    #[allow(unused_imports)]
-    use std::env;
-    #[allow(unused_imports)]
     use std::fs;
     use std::fs::File;
     use std::io::prelude::*;
     use std::io::Read;
     use std::path::PathBuf;
-    use std::str::FromStr;
 
     fn decode_data(compressed_data: &[u8]) -> (String, usize) {
         let mut decoder = ZlibDecoder::new(compressed_data);
@@ -46,16 +42,18 @@ pub mod git {
         }
     }
 
-    pub fn read_blob(path_to_bolob_file: String, hash_file: String) {
+    pub fn read_blob(blob_file: String) {
         let mut file_content = Vec::new();
+        let path_to_objects = ".git/objects/";
+        let (hash_path, hash_file) = parse_args(&blob_file);
 
-        let path_to_bolob_file = path_to_bolob_file + "/" + &hash_file.to_string();
-        let mut path_to_bolob_file = File::open(&path_to_bolob_file).unwrap();
+        let hash_path = path_to_objects.to_owned() + &hash_path + "/" + &hash_file.to_string();
+        let mut hash_path = File::open(&hash_path).unwrap();
 
-        path_to_bolob_file.read_to_end(&mut file_content).unwrap();
+        hash_path.read_to_end(&mut file_content).unwrap();
 
         let compressed_data = &file_content[..];
-        let (buffer, bytes) = decode_data(compressed_data);
+        let (buffer, _bytes) = decode_data(compressed_data);
         print!("{}", &buffer[8..]);
     }
 
@@ -156,9 +154,9 @@ pub mod git {
         let mut full_path = File::open(&full_path).unwrap();
         full_path.read_to_end(&mut file_content).unwrap();
 
-        let mut formatted_buff = String::new();
+        let _formatted_buff = String::new();
         let compressed_data = &file_content[..];
-        let (formatted_buff, bytes) = decode_data(compressed_data);
+        let (formatted_buff, _bytes) = decode_data(compressed_data);
 
         let formatted_buff = formatted_buff.replace("\\x00", "\x00");
         let formatted_buff = formatted_buff.replace("\\\\", "\\");

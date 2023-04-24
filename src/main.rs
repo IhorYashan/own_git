@@ -1,21 +1,20 @@
 use git_starter_rust::git;
 use std::env;
 use std::fs;
-use std::io::Read;
+
+//mod git_tree;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     git::do_git_init(&args);
 
-    let path_to_objects = ".git/objects/".to_string();
+    
 
     if args[1] == "cat-file" && args[2] == "-p" {
         let blob_file = &args[3]; //own_git cat-file -p <blob_file> // hash : [hash_dir + hash_file]
-        let (hash_path, hash_file) = git::parse_args(blob_file);
-        let path_to_bolob_file = path_to_objects.clone() + hash_path;
 
-        git::read_blob(path_to_bolob_file, hash_file.to_string());
+        git::read_blob(blob_file.to_string());
     }
 
     if args[1] == "hash-object" && args[2] == "-w" {
