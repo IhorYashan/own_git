@@ -31,10 +31,12 @@ fn main() {
     }
 
     if args[1] == "commit-tree" && args[3] == "-p" && args[5] == "-m" {
-        git::do_commit(
+        let sha_commit = git::do_commit(
             args[2].to_string(),
             args[4].to_string(),
             args[6].to_string(),
         )
+
+        println!("{}",sha_commit);
     }
 }
