@@ -178,7 +178,7 @@ pub mod git {
             "tree {}\nparent {}\n
 author ScotChacon schacon@gmail.com 1243040974 -0700\n
 committer ScotChacon schacon@gmail.com 1243040974 -0700\n\n
-{}\n",
+ {}\n",
             tree_sha, commit_sha, message
         );
 
