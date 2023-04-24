@@ -31,8 +31,13 @@ fn main() {
     }
 
     if args[1] == "commit-tree" && args[3] == "-p" && args[5] == "-m" {
-        println!("args[2] {}", args[2]);
-        println!("args[4] {}", args[4]);
-        println!("args[6] {}", args[6]);
+        println!("tree_sha[2] {}", args[2]);
+        println!("commit_sha[4] {}", args[4]);
+        println!("message[6] {}", args[6]);
+        git::do_commit(
+            args[2].to_string(),
+            args[4].to_string(),
+            args[6].to_string(),
+        )
     }
 }

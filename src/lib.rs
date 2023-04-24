@@ -2,6 +2,7 @@ pub mod git {
 
     extern crate hex;
     //extern crate sha1;
+    //use chrono::{offset::Utc, DateTime, FixedOffset, TimeZone};
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;
     use flate2::Compression;
@@ -172,8 +173,15 @@ pub mod git {
         }
     }
 
-    pub fn do_commit() {
+    pub fn do_commit(tree_sha: String, commit_sha: String, message: String) {
+        let content_commit = format!(
+            "tree {}\n\
+             author Scott Chacon <schacon@gmail.com> 1243040974 -0700\n\
+             committer Scott Chacon <schacon@gmail.com> 1243040974 -0700\n\n\
+             {}",
+            tree_sha, message
+        );
 
-        
+        println!("Content commit:\n{}", content_commit);
     }
 }
