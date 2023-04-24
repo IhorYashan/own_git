@@ -184,6 +184,5 @@ pub mod git {
         );
 
         write_obj(content_commit.into_bytes(), "commit");
-        //println!("Content commit:\n{}", content_commit);
     }
 }
