@@ -35,8 +35,8 @@ fn main() {
             args[2].to_string(),
             args[4].to_string(),
             args[6].to_string(),
-        )
+        );
 
-        println!("{}",sha_commit);
+        println!("{}", sha_commit);
     }
 }

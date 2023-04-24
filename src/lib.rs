@@ -173,7 +173,7 @@ pub mod git {
         }
     }
 
-    pub fn do_commit(tree_sha: String, commit_sha: String, message: String) {
+    pub fn do_commit(tree_sha: String, commit_sha: String, message: String) -> String {
         let content_commit = format!(
             "tree {}\n
              parent {}\n
@@ -183,6 +183,7 @@ pub mod git {
             tree_sha, commit_sha, message
         );
 
-        write_obj(content_commit.into_bytes(), "commit");
+        let sha_commit = write_obj(content_commit.into_bytes(), "commit");
+        sha_commit
     }
 }
