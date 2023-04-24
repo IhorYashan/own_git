@@ -181,7 +181,7 @@ committer ScotChacon schacon@gmail.com 1243040974 -0700\n\n",
             tree_sha, commit_sha
         );
 
-        let content_commit = content_commit + &message;
+        let content_commit = content_commit + &message + "\n";
 
         let sha_commit = write_obj(content_commit.into_bytes(), "commit");
         sha_commit
