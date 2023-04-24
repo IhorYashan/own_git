@@ -182,6 +182,17 @@ pub mod git {
             tree_sha, message
         );
 
-        println!("Content commit:\n{}", content_commit);
+        // let data_to_compress = header_blob + &format!("{}", content_file_);
+
+        let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
+        encoder.write_all(content_commit.as_bytes()).unwrap();
+        let compressed_data = encoder.finish().unwrap();
+
+        let mut hasher = Sha1::new();
+        hasher.update(content_commit);
+        let hash = hasher.finalize();
+        let hash_blob_file = hex::encode(&hash);
+        print!("{}", hash_blob_file);
+        //println!("Content commit:\n{}", content_commit);
     }
 }
