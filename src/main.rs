@@ -31,8 +31,8 @@ fn main() {
     }
 
     if args[1] == "commit-tree" && args[3] == "-p" && args[5] == "-m" {
-        println!("args[2] {args[2]}");
-        println!("args[4] {args[4]}");
-        println!("args[6] {args[6]}");
+        println!("args[2] {}", args[2]);
+        println!("args[4] {}", args[4]);
+        println!("args[6] {}", args[6]);
     }
 }
