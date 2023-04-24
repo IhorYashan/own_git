@@ -187,5 +187,3 @@ pub mod git {
         sha_commit
     }
 }
-
-//
