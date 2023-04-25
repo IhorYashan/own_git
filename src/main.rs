@@ -39,7 +39,7 @@ fn main() {
     }
 }
 
-
+/*
 pub fn do_commit(tree_sha: String, commit_sha: String, message: String) -> String {
     let hardcode_data = "author ScotChacon <schacon@gmail.com> 1243040974 -0700\ncommitter ScotChacon <schacon@gmail.com> 1243040974 -0700".to_string();
 
@@ -53,3 +53,4 @@ pub fn do_commit(tree_sha: String, commit_sha: String, message: String) -> Strin
     let sha_commit = write_obj(content_commit.into_bytes(), "commit");
     sha_commit
 }
+ */
