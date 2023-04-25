@@ -175,11 +175,11 @@ pub mod git {
 
     pub fn do_commit(tree_sha: String, commit_sha: String, message: String) -> String {
         let content_commit = format!(
-            "tree {}\nparent {}\nauthor ScotChacon <schacon@gmail.com> 1243040974 -0700\ncommitter ScotChacon <schacon@gmail.com> 1243040974 -0700\n\n{}\n",
-            tree_sha, commit_sha , message
+            "tree {}\nparent {}\nauthor ScotChacon <schacon@gmail.com> 1243040974 -0700\ncommitter ScotChacon <schacon@gmail.com> 1243040974 -0700\n\n",
+            tree_sha, commit_sha
         );
 
-        //let content_commit = content_commit + &message;
+        let content_commit = content_commit + &message + "\n";
 
         let sha_commit = write_obj(content_commit.into_bytes(), "commit");
         sha_commit
