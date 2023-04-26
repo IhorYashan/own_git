@@ -151,6 +151,6 @@ pub mod git {
     }
 
     pub fn clone_repo(dir_name: String) {
-        fs::create_dir(format!("./{dir_name}")).unwrap();
+        fs::create_dir(format!("{dir_name}")).unwrap();
     }
 }
