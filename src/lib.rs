@@ -151,9 +151,9 @@ pub mod git {
     }
 
     pub fn clone_repo(dir_name: String) {
-        fs::create_dir(".git").unwrap();
-        fs::create_dir(".git/objects").unwrap();
-        fs::create_dir(".git/refs").unwrap();
-        fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
+        fs::create_dir("{dir_name}/.git").unwrap();
+        fs::create_dir("{dir_name}/.git/objects").unwrap();
+        fs::create_dir("{dir_name}/.git/refs").unwrap();
+        fs::write("{dir_name}/.git/HEAD", "ref: refs/heads/master\n").unwrap();
     }
 }
