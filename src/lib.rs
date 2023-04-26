@@ -1,44 +1,11 @@
 pub mod git {
 
+    mod zlib;
     extern crate hex;
-    use flate2::read::ZlibDecoder;
-    use flate2::write::ZlibEncoder;
-    use flate2::Compression;
-    use sha1::{Digest, Sha1};
     use std::fs;
     use std::fs::File;
     use std::io::prelude::*;
     use std::io::Read;
-
-    fn decode_data(compressed_data: &[u8]) -> (String, usize) {
-        let mut decoder = ZlibDecoder::new(compressed_data);
-        let mut buffer = [0; 4096];
-        let mut s_buffer = String::new();
-        let mut bytes = 0;
-        loop {
-            let bytes_read = match decoder.read(&mut buffer) {
-                Ok(0) => break,
-                Ok(n) => n,
-                Err(e) => panic!("Unable to read from decoder: {:?}", e),
-            };
-            bytes = bytes_read;
-        }
-        s_buffer.push_str(&String::from_utf8_lossy(&buffer[..bytes]));
-
-        (s_buffer, bytes)
-    }
-
-    fn encode_data(data_to_compress: String) -> (String, Vec<u8>) {
-        let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
-        encoder.write_all(data_to_compress.as_bytes()).unwrap();
-        let compressed_data = encoder.finish().unwrap();
-
-        let mut hasher = Sha1::new();
-        hasher.update(data_to_compress);
-        let hash = hasher.finalize();
-        let hash_blob_file = hex::encode(&hash);
-        (hash_blob_file, compressed_data)
-    }
 
     pub fn do_git_init(args: &Vec<String>) {
         if args[1] == "init" {
@@ -63,15 +30,11 @@ pub mod git {
         hash_path.read_to_end(&mut file_content).unwrap();
 
         let compressed_data = &file_content[..];
-        let (buffer, _bytes) = decode_data(compressed_data);
+        let (buffer, _bytes) = zlib::decode_data(compressed_data);
         print!("{}", &buffer[8..]);
     }
 
     pub fn write_obj(content_file: Vec<u8>, file_type: &str) -> String {
-        //println!("--- path: {path} --- ");
-
-        //let content_file = fs::read(path).unwrap();
-
         #[allow(unsafe_code)]
         let content_file_ = unsafe { String::from_utf8_unchecked(content_file.clone()) };
 
@@ -79,19 +42,7 @@ pub mod git {
 
         let data_to_compress = header_blob + &format!("{}", content_file_);
 
-        /*
-                let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
-                encoder.write_all(data_to_compress.as_bytes()).unwrap();
-                let compressed_data = encoder.finish().unwrap();
-
-                let mut hasher = Sha1::new();
-                hasher.update(data_to_compress);
-                let hash = hasher.finalize();
-                let hash_blob_file = hex::encode(&hash);
-
-                // print!("{}", hash_blob_file);
-        */
-        let (hash_blob_file, compressed_data) = encode_data(data_to_compress);
+        let (hash_blob_file, compressed_data) = zlib::encode_data(data_to_compress);
 
         let hash_dir = &hash_blob_file[..2];
         let hash_file = &hash_blob_file[2..];
@@ -108,6 +59,7 @@ pub mod git {
         let (hash_path, hash_file) = (&args[..2], &args[2..]);
         (hash_path, hash_file)
     }
+
     //write tree
     pub fn write_tree(file_path: &str) -> String {
         let mut sha_out: String = String::new();
@@ -144,8 +96,7 @@ pub mod git {
             let sha = unsafe { String::from_utf8_unchecked(sha_file) };
 
             sha_out += &format!(
-                "{} {}\x00{}",
-                mode,
+                "40000 {}\x00{}",
                 dir.file_name()
                     .expect("Failed to get file name")
                     .to_str()
@@ -171,7 +122,7 @@ pub mod git {
 
         let _formatted_buff = String::new();
         let compressed_data = &file_content[..];
-        let (formatted_buff, _bytes) = decode_data(compressed_data);
+        let (formatted_buff, _bytes) = zlib::decode_data(compressed_data);
 
         let formatted_buff = formatted_buff.replace("\\x00", "\x00");
         let formatted_buff = formatted_buff.replace("\\\\", "\\");
