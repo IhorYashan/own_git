@@ -1,8 +1,6 @@
 pub mod git {
 
     extern crate hex;
-    //extern crate sha1;
-    //use chrono::{offset::Utc, DateTime, FixedOffset, TimeZone};
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;
     use flate2::Compression;
@@ -28,6 +26,18 @@ pub mod git {
         s_buffer.push_str(&String::from_utf8_lossy(&buffer[..bytes]));
 
         (s_buffer, bytes)
+    }
+
+    fn encode_data(data_to_compress: String) -> (String, Vec<u8>) {
+        let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
+        encoder.write_all(data_to_compress.as_bytes()).unwrap();
+        let compressed_data = encoder.finish().unwrap();
+
+        let mut hasher = Sha1::new();
+        hasher.update(data_to_compress);
+        let hash = hasher.finalize();
+        let hash_blob_file = hex::encode(&hash);
+        (hash_blob_file, compressed_data)
     }
 
     pub fn do_git_init(args: &Vec<String>) {
@@ -69,16 +79,19 @@ pub mod git {
 
         let data_to_compress = header_blob + &format!("{}", content_file_);
 
-        let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
-        encoder.write_all(data_to_compress.as_bytes()).unwrap();
-        let compressed_data = encoder.finish().unwrap();
+        /*
+                let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
+                encoder.write_all(data_to_compress.as_bytes()).unwrap();
+                let compressed_data = encoder.finish().unwrap();
 
-        let mut hasher = Sha1::new();
-        hasher.update(data_to_compress);
-        let hash = hasher.finalize();
-        let hash_blob_file = hex::encode(&hash);
+                let mut hasher = Sha1::new();
+                hasher.update(data_to_compress);
+                let hash = hasher.finalize();
+                let hash_blob_file = hex::encode(&hash);
 
-        // print!("{}", hash_blob_file);
+                // print!("{}", hash_blob_file);
+        */
+        let (hash_blob_file, compressed_data) = encode_data(data_to_compress);
 
         let hash_dir = &hash_blob_file[..2];
         let hash_file = &hash_blob_file[2..];
