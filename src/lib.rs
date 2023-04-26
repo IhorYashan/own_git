@@ -84,13 +84,13 @@ pub mod git {
             let sha_file;
             if dir.is_dir() {
                 mode = "40000";
-                let sha_file = write_tree(path_name);
-                sha_file = hex::decode(&sha_file).expect("Failed to decode hex");
+                let sha_file1 = write_tree(path_name);
+                sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
             } else {
                 mode = "100644";
                 let content_file = fs::read(&path_name).unwrap();
-                let sha_file = write_obj(content_file, "blob");
-                sha_file = hex::decode(&sha_file).expect("Failed to decode hex");
+                let sha_file1 = write_obj(content_file, "blob");
+                sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
             }
             #[allow(unsafe_code)]
             let sha = unsafe { String::from_utf8_unchecked(sha_file) };

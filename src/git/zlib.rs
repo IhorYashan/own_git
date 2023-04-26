@@ -9,7 +9,7 @@ use std::io::Write;
 pub fn decode_data(compressed_data: &[u8]) -> (String, usize) {
     let mut decoder = ZlibDecoder::new(compressed_data);
     let mut buffer = [0; 4096];
-    let mut s_buffer = String::new();
+    let mut string_buffer = String::new();
     let mut bytes = 0;
     loop {
         let bytes_read = match decoder.read(&mut buffer) {
@@ -19,9 +19,9 @@ pub fn decode_data(compressed_data: &[u8]) -> (String, usize) {
         };
         bytes = bytes_read;
     }
-    s_buffer.push_str(&String::from_utf8_lossy(&buffer[..bytes]));
+    string_buffer.push_str(&String::from_utf8_lossy(&buffer[..bytes]));
 
-    (s_buffer, bytes)
+    (string_buffer, bytes)
 }
 
 pub fn encode_data(data_to_compress: String) -> (String, Vec<u8>) {
