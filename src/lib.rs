@@ -4,7 +4,6 @@ pub mod git {
     extern crate hex;
     use std::fs;
     use std::fs::File;
-    use std::io::prelude::*;
     use std::io::Read;
 
     pub fn do_git_init(args: &Vec<String>) {
@@ -13,7 +12,7 @@ pub mod git {
             fs::create_dir(".git/objects").unwrap();
             fs::create_dir(".git/refs").unwrap();
             fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
-            println!("Initialized git directory")
+            // println!("Initialized git directory")
         } else {
             // println!("unknown command: {}", args[1])
         }
@@ -149,5 +148,9 @@ pub mod git {
 
         let sha_commit = write_obj(content_commit.into_bytes(), "commit");
         sha_commit
+    }
+
+    pub fn clone_repo(dir_name: String) {
+        do_git_init();
     }
 }

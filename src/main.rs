@@ -39,6 +39,7 @@ fn main() {
     }
 
     if args[1] == "clone" {
-        println!("clone_repo");
+        let dir_name = args[3].to_string();
+        git::clone_repo(dir_name);
     }
 }
