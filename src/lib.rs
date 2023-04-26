@@ -106,7 +106,7 @@ pub mod git {
         entries.sort();
 
         for dir in entries {
-            let mode;
+            // let mode;
             let path_name = dir
                 .as_path()
                 .to_str()
