@@ -78,7 +78,7 @@ pub mod git {
         let header_blob = format!("{} {}\x00", file_type, content_file.len());
 
         let data_to_compress = header_blob + &format!("{}", content_file_);
-        //
+
         /*
                 let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
                 encoder.write_all(data_to_compress.as_bytes()).unwrap();
