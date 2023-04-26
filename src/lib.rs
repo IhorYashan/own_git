@@ -129,17 +129,16 @@ pub mod git {
             }
             #[allow(unsafe_code)]
             let sha = unsafe { String::from_utf8_unchecked(sha_file) };
+            sha_out += &format!(
+                "{} {}\x00{}",
+                mode,
+                dir.file_name()
+                    .expect("Failed to get file name")
+                    .to_str()
+                    .expect("Failed to convert file name to string"),
+                sha
+            );
         }
-        mode = "100644";
-        sha_out += &format!(
-            "{} {}\x00{}",
-            mode,
-            dir.file_name()
-                .expect("Failed to get file name")
-                .to_str()
-                .expect("Failed to convert file name to string"),
-            sha
-        );
 
         let res_sha = write_obj(sha_out.into_bytes(), "tree");
         res_sha
