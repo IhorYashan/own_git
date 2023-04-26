@@ -151,6 +151,6 @@ pub mod git {
     }
 
     pub fn clone_repo(dir_name: String) {
-        do_git_init();
+        do_git_init("init".to_string());
     }
 }
