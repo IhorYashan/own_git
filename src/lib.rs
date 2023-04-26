@@ -106,7 +106,7 @@ pub mod git {
         entries.sort();
 
         for dir in entries {
-            // let mode;
+            let mode;
             let path_name = dir
                 .as_path()
                 .to_str()
@@ -118,11 +118,11 @@ pub mod git {
 
             let sha_file;
             if dir.is_dir() {
-                //mode = "40000";
+                mode = "40000";
                 let sha_file1 = write_tree(path_name);
                 sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
             } else {
-                // mode = "100644";
+                mode = "100644";
                 let content_file = fs::read(&path_name).unwrap();
                 let sha_file1 = write_obj(content_file, "blob");
                 sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
@@ -131,7 +131,8 @@ pub mod git {
             let sha = unsafe { String::from_utf8_unchecked(sha_file) };
 
             sha_out += &format!(
-                "100644 {}\x00{}",
+                "{} {}\x00{}",
+                mode,
                 dir.file_name()
                     .expect("Failed to get file name")
                     .to_str()
