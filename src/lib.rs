@@ -12,7 +12,7 @@ pub mod git {
             fs::create_dir(".git/objects").unwrap();
             fs::create_dir(".git/refs").unwrap();
             fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
-            // println!("Initialized git directory")
+            println!("Initialized git directory")
         } else {
             // println!("unknown command: {}", args[1])
         }
@@ -151,6 +151,9 @@ pub mod git {
     }
 
     pub fn clone_repo(dir_name: String) {
-        do_git_init("init".to_string());
+        fs::create_dir(".git").unwrap();
+        fs::create_dir(".git/objects").unwrap();
+        fs::create_dir(".git/refs").unwrap();
+        fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
     }
 }
