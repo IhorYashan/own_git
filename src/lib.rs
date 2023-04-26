@@ -11,7 +11,6 @@ pub mod git {
     use std::fs::File;
     use std::io::prelude::*;
     use std::io::Read;
-    use std::path::PathBuf;
 
     fn decode_data(compressed_data: &[u8]) -> (String, usize) {
         let mut decoder = ZlibDecoder::new(compressed_data);
@@ -99,10 +98,10 @@ pub mod git {
     //write tree
     pub fn write_tree(file_path: &str) -> String {
         let mut sha_out: String = String::new();
-        let mut entries = fs::read_dir(file_path)
+        let mut entries: Vec<_> = fs::read_dir(file_path)
             .expect("Failed to read directory")
             .map(|res| res.expect("Failed to read entry").path())
-            .collect::<Vec<PathBuf>>();
+            .collect();
 
         entries.sort();
 
@@ -131,7 +130,8 @@ pub mod git {
             #[allow(unsafe_code)]
             let sha = unsafe { String::from_utf8_unchecked(sha_file) };
             sha_out += &format!(
-                "{mode} {}\x00{}",
+                "{} {}\x00{}",
+                mode,
                 dir.file_name()
                     .expect("Failed to get file name")
                     .to_str()
