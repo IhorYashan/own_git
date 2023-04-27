@@ -169,12 +169,30 @@ pub mod git {
                }
                 println!(" DATA : --- {}", body);
             },
-            Err(e) => eprintln!("Error: {:?}", e),
+            Err(e) => println!("Error: {:?}", e),
         }
     }
 
     fn extract_commit_hash(response: &str) -> Option<&str> {
         println!("{} \n\n",response);
+        let mut newline_count = 0;
+        let mut index_after_second_newline = None;
+        for (index, newline_char) in response.chars().enumerate()   {
+            if newline_char == '\n' {
+                newline_count += 1;
+                if newline_count == 2 {
+                    index_after_second_newline = Some(index + 1);
+                    break;
+                }
+            }
+        }
+        match index_after_second_newline {
+            Some(index) => {
+                let text_before_second_newline = &response[..index];
+                println!("text_before_second_newline : {}", text_before_second_newline);
+            },
+            None => println!("{}", response),
+        }
 
      Some("test")
     }
