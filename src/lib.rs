@@ -189,5 +189,3 @@ pub mod git {
         sha_refs
     }
 }
-
-//
