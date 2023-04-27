@@ -184,7 +184,7 @@ pub mod git {
 
 
 
-        print!("sha : {}",&response[index-20..index]);
+        print!("sha : {}",&response[index-40..index]);
      Some("test")
     }
 }
