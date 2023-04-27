@@ -174,7 +174,13 @@ pub mod git {
     }
 
     fn extract_commit_hash(response: &str) -> Option<&str> {
-        let index = response.find("refs/heads/master");
+        //let index = response.find("refs/heads/master");
+
+        let index = match response.find("refs/heads/master") {
+            Some(index) => {index},
+            None => panic!("usize none")
+
+        };
 
         print!("index :-{}",index);
      Some("test")
