@@ -174,9 +174,9 @@ pub mod git {
     }
 
     fn extract_commit_hash(response: &str) -> Option<&str> {
-        let index_ = response.find("refs/heads/master");
+        let index = response.find("refs/heads/master");
 
-        print!("hash :-{}",index);
+        print!("index :-{}",index);
      Some("test")
     }
 }
