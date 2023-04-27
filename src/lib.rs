@@ -176,14 +176,14 @@ pub mod git {
 
     fn extract_commit_hash(response: &str) -> &str {
 
-
+        println!("response : {}",response);
         let index = match response.find("refs/heads/master\n0000") {
             Some(index) => {index},
             None => panic!("panic occurs !")
 
         };
 
-        let sha_refs = &response[index-40..index];
+        let sha_refs = &response[index-42..index];
 
         
         sha_refs
