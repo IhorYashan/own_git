@@ -174,10 +174,11 @@ pub mod git {
     }
 
     fn extract_commit_hash(response: &str) -> Option<&str> {
-        let hash = &response[29..69];
+        let index_ = response.find("refs/heads/master");
 
-        print!("hash :-{}",hash);
+        print!("hash :-{}",index);
      Some("test")
     }
 }
-//
+//003f23f0bc3b5c7c3108e41c448f01a3db31e7064bbb
+//015523f0bc3b5c7c3108e41c448f01a3db31e7064bbb 
