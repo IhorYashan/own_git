@@ -196,13 +196,6 @@ pub mod git {
 
      Some("test")
     }
-    /*
-
-    fn parse_data(data:String){
-        println!("parse data : --- ");
-
-
-
-    }
-     */
+  
+  
 }
