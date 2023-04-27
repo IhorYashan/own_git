@@ -151,21 +151,7 @@ pub mod git {
         sha_commit
     }
 
-/*
-    pub fn clone_repo_(dir_name: String, link: String) -> Result<(), Box<dyn std::error::Error>> {
-        //   fs::create_dir_all(format!("/{}", dir_name)).unwrap();
-        println!("clone");
 
-        let body = reqwest::get(link)
-            .expect("Failed to send request")
-            .text()
-            .expect("Failed to retrieve response body");
-
-        println!("{}", body);
-        Ok(())
-    }
-
- */
     async fn get_and_print_data(url: &str) -> Result<(), reqwest::Error> {
         let response = reqwest::get(url).await?;
         let body = response.text().await?;
