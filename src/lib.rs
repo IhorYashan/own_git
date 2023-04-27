@@ -176,7 +176,7 @@ pub mod git {
     fn extract_commit_hash(response: &str) -> Option<&str> {
         println!("{} \n\n",response);
 
-     
+     Some("test")
     }
     /*
 
