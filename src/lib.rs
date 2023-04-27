@@ -178,13 +178,16 @@ pub mod git {
 
         let index = match response.find("refs/heads/master") {
             Some(index) => {index},
-            None => panic!("usize none")
+            None => panic!("panic occurs !")
 
         };
 
-        print!("index :-{}",index);
+
+
+        print!("sha : {}",&response[index-20..index]);
      Some("test")
     }
 }
+//301
 //003f23f0bc3b5c7c3108e41c448f01a3db31e7064bbb
 //015523f0bc3b5c7c3108e41c448f01a3db31e7064bbb 
