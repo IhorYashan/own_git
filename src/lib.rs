@@ -182,9 +182,9 @@ pub mod git {
 
         };
 
+        let sha_refs = &response[index-40..index];
 
-
-        print!("sha : {}",&response[index-40..index]);
+        print!("sha : {}",&sha_refs);
      Some("test")
     }
 }
