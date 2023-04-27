@@ -180,7 +180,7 @@ pub mod git {
         for (index, newline_char) in response.chars().enumerate()   {
             if newline_char == '\n' {
                 newline_count += 1;
-                if newline_count == 2 {
+                if newline_count == 4 {
                     index_after_second_newline = Some(index + 1);
                     break;
                 }
