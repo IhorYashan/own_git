@@ -176,7 +176,7 @@ pub mod git {
     fn extract_commit_hash(response: &str) -> Option<&str> {
         let hash = &response[29..69];
 
-        print!("{}",hash);
+        print!("hash :-{}",hash);
      Some("test")
     }
 }
