@@ -174,24 +174,9 @@ pub mod git {
     }
 
     fn extract_commit_hash(response: &str) -> Option<&str> {
-
         println!("{} \n\n",response);
-//
-        for packet in response.split('\n') {
-            let packet = packet.trim();
-            if packet.is_empty() {
-                continue;
-            }
-            let mut parts = packet.splitn(2, ' ');
-            let key = parts.next()?;
-            let value = parts.next()?;
-            if key == "HEAD" && value.starts_with("refs/heads/") {
-                let commit_hash = &value[11..];
-                print!("commit_hash : {}",commit_hash);
-                return Some(commit_hash);
-            }
-        }
-        None
+
+     
     }
     /*
 
