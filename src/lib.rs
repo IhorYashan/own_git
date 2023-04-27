@@ -183,7 +183,7 @@ pub mod git {
 
         };
 
-        let sha_refs = &response[index-42..index];
+        let sha_refs = &response[index-43..index-1];
 
         
         sha_refs
