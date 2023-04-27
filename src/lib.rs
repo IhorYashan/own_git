@@ -152,18 +152,48 @@ pub mod git {
     }
 
 //
-    async fn get_and_print_data(url: &str) -> Result<(), reqwest::Error> {
+    async fn get_data(url: &str) -> Result<String, reqwest::Error> {
         let response = reqwest::get(url).await?;
         let body = response.text().await?;
-        println!("{}", body);
-        Ok(())
+        Ok(body)
     }
     
     pub async fn clone_repo(dir_name: String, link: String) {
         let link = format!("{}/info/refs?service=git-upload-pack",link);
         println!("link to search : {}", link);
-        if let Err(e) = get_and_print_data(&link).await {
-            eprintln!("Error: {:?}", e);
+        match get_data(&link).await {
+            Ok(body) => {
+               match extract_commit_hash(&body){
+                Some(sha) => {println!("{}",sha);},
+                None => panic!("No data"),
+               }
+                println!(" DATA : --- {}", body);
+            },
+            Err(e) => eprintln!("Error: {:?}", e),
         }
+    }
+
+    fn extract_commit_hash(response: &str) -> Option<&str> {
+        for packet in response.split('\n') {
+            let packet = packet.trim();
+            if packet.is_empty() {
+                continue;
+            }
+            let mut parts = packet.splitn(2, ' ');
+            let key = parts.next()?;
+            let value = parts.next()?;
+            if key == "HEAD" && value.starts_with("refs/heads/") {
+                let commit_hash = &value[11..];
+                return Some(commit_hash);
+            }
+        }
+        None
+    }
+
+    fn parse_data(data:String){
+        println!("parse data : --- ");
+
+
+
     }
 }
