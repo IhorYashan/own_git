@@ -2,6 +2,7 @@ pub mod git {
 
     mod zlib;
     extern crate hex;
+    use std::collections::HashMap;
     use std::fs;
     use std::fs::File;
     use std::io::Read;
@@ -150,7 +151,33 @@ pub mod git {
         sha_commit
     }
 
-    pub fn clone_repo(dir_name: String) {
-        fs::create_dir_all(format!("/{}", dir_name)).unwrap();
+/*
+    pub fn clone_repo_(dir_name: String, link: String) -> Result<(), Box<dyn std::error::Error>> {
+        //   fs::create_dir_all(format!("/{}", dir_name)).unwrap();
+        println!("clone");
+
+        let body = reqwest::get(link)
+            .expect("Failed to send request")
+            .text()
+            .expect("Failed to retrieve response body");
+
+        println!("{}", body);
+        Ok(())
+    }
+
+ */
+    async fn get_and_print_data(url: &str) -> Result<(), reqwest::Error> {
+        let response = reqwest::get(url).await?;
+        let body = response.text().await?;
+        println!("{}", body);
+        Ok(())
+    }
+    
+    pub async fn clone_repo(dir_name: String, link: String) {
+        let link = format!("{}/info/refs?service=git-upload-pack",link);
+        println!("link to search : {}", link);
+        if let Err(e) = get_and_print_data(&link).await {
+            eprintln!("Error: {:?}", e);
+        }
     }
 }
