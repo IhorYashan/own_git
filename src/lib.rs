@@ -158,22 +158,23 @@ pub mod git {
         Ok(body)
     }
     
-    pub async fn clone_repo(_dir_name: String, link: String) {
+    pub async fn clone_repo(_dir_name: String, link: String) { 
+        let mut sha_refs = String::new();
         let link = format!("{}/info/refs?service=git-upload-pack",link);
         println!("link to search : {}", link);
         match get_data(&link).await {
-            Ok(body) => {
-               match extract_commit_hash(&body){
-                Some(sha) => {println!("{}",sha);},
-                None => panic!("No data"),
-               }
-                println!(" DATA : --- {}", body);
-            },
+            Ok(body) => sha_refs = extract_commit_hash(&body).to_string(),
             Err(e) => println!("Error: {:?}", e),
         }
+
+        print!("sha : {}",&sha_refs);
+
+        let (str_buffer,_bytes) =  zlib::decode_data(sha_refs.as_bytes());
+        println!("{}",str_buffer);
+
     }
 
-    fn extract_commit_hash(response: &str) -> Option<&str> {
+    fn extract_commit_hash(response: &str) -> &str {
 
 
         let index = match response.find("refs/heads/master\n0000") {
@@ -184,7 +185,7 @@ pub mod git {
 
         let sha_refs = &response[index-40..index];
 
-        print!("sha : {}",&sha_refs);
-     Some("test")
+        
+        sha_refs
     }
 }
