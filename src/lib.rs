@@ -151,7 +151,7 @@ pub mod git {
         sha_commit
     }
 
-//
+
     async fn get_data(url: &str) -> Result<String, reqwest::Error> {
         let response = reqwest::get(url).await?;
         let body = response.text().await?;
