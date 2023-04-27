@@ -177,7 +177,7 @@ pub mod git {
     fn extract_commit_hash(response: &str) -> &str {
 
         println!("response : {}",response);
-        let index = match response.find("refs/heads/master\n0000") {
+        let index = match response.find("refs/heads/master") {
             Some(index) => {index},
             None => panic!("panic occurs !")
 
