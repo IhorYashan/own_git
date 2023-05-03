@@ -155,34 +155,34 @@ pub mod git {
 
 
 
-
-    async fn get_data(url: &str) -> Result<String, reqwest::Error> {
-        let response = reqwest::get(url).await?;
-        let body = response.text().await?;
-        Ok(body)
+/*
+    async fn get_data(url: &str) -> &str {
+        let response = reqwest::get(url).await.unwrap();
+        let body = response.text().await.unwrap();
+        body
     }
-    
+   */  
     pub async fn clone_repo(_dir_name: String, link: String) { 
-        let mut sha_refs = String::new();
+       // let mut sha_refs = String::new();
+       // let mut sha_head = String::new();
 
 
 
-        
         let link = format!("{}/info/refs?service=git-upload-pack",link);
         println!("link to search : {}", link);
-        match get_data(&link).await {
-            Ok(body) => sha_refs = extract_commit_hash(&body).to_string(),
-            Err(e) => println!("Error: {:?}", e),
-        }
+        //let body = get_data(&link);
+        let body = reqwest::blocking::get(link).unwrap().text().unwrap();
+        let (sha_refs, sha_head) = extract_commit_hash(&body);
+    
 
-        print!("sha : {}",&sha_refs);
-
+        print!("sha_refs : {}",&sha_refs);
+        print!("sha_head : {}",&sha_head);
         let (str_buffer,_bytes) =  zlib::decode_data(sha_refs.as_bytes());
         println!("{}",str_buffer);
 
     }
 
-    fn extract_commit_hash(response: &str) -> &str {
+    fn extract_commit_hash(response: &str) -> (&str,&str)  {
 
         println!("response : {}",response);
         let index = match response.find("refs/heads/master\n0000") {
@@ -190,10 +190,21 @@ pub mod git {
             None => panic!("panic occurs !")
 
         };
-
         let sha_refs = &response[index-45..index];
 
+
+        let index = match response.find("HEADmulti_ack") {
+            Some(index) => {index},
+            None => panic!("panic occurs !")
+
+        };
         
-        sha_refs
+
+        
+        let sha_head = &response[index-45..index];
+
+        
+        (sha_refs, sha_head)
     }
 }
+
