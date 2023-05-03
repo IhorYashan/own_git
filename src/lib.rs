@@ -183,7 +183,7 @@ pub mod git {
     }
 
     fn extract_commit_hash(response: &str) -> (&str,&str)  {
-
+//
         println!("response : {}",response);
         let index = match response.find("refs/heads/master\n0000") {
             Some(index) => {index},
