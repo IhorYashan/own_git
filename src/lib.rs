@@ -152,6 +152,10 @@ pub mod git {
     }
 
 
+
+
+
+
     async fn get_data(url: &str) -> Result<String, reqwest::Error> {
         let response = reqwest::get(url).await?;
         let body = response.text().await?;
@@ -160,6 +164,10 @@ pub mod git {
     
     pub async fn clone_repo(_dir_name: String, link: String) { 
         let mut sha_refs = String::new();
+
+
+
+        
         let link = format!("{}/info/refs?service=git-upload-pack",link);
         println!("link to search : {}", link);
         match get_data(&link).await {
