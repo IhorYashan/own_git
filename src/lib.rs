@@ -60,7 +60,7 @@ pub mod git {
         (hash_path, hash_file)
     }
 
-    //write tree
+    
     pub fn write_tree(file_path: &str) -> String {
         let mut sha_out: String = String::new();
         let mut entries: Vec<_> = fs::read_dir(file_path)
