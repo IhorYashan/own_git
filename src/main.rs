@@ -45,7 +45,7 @@ async fn main() {
        
     }
 
-   // println!("before clone");
+
     if args[1] == "clone" {
         let dir_name = args[3].to_string();
         let link = args[2].to_string();
