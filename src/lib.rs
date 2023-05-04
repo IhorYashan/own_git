@@ -183,7 +183,7 @@ pub mod git {
         println!("sha_head : {}",&sha_head);
 
 
-        let body = format!("0032want {}\n",sha_refs.clone());
+        let body = format!("0032want {}\n00000009done\n",sha_refs.clone());
         let data = get_data_form_git(link.clone(),body);
         
         let data_from_git = match data {
@@ -197,18 +197,18 @@ pub mod git {
 
     fn get_data_form_git(link: String, body : String) -> Result<bytes::Bytes, io::Error>{
 
-    let mut headers = HeaderMap::new();
+        let mut headers = HeaderMap::new();
         headers.insert(
              CONTENT_TYPE,
                 HeaderValue::from_static("application/x-git-upload-pack-request"),
             );
 
-            let client = reqwest::blocking::Client::new();
-    let client_req = client.post(link).headers(headers).body(body);
-    let response_data = client_req.send().unwrap();
+        let client = reqwest::blocking::Client::new();
+        let client_req = client.post(link).headers(headers).body(body);
+        let response_data = client_req.send().unwrap();
      
-    let response_data = response_data.bytes().unwrap();
-    Ok(response_data)
+        let response_data = response_data.bytes().unwrap();
+        Ok(response_data)
     }
 
     fn extract_commit_hash(response: &str) -> (&str,&str)  {
@@ -231,7 +231,7 @@ pub mod git {
         
 
         
-        let sha_head = &response[index-45..index];
+        let sha_head = &response[index-41..index];
 
         
         (sha_refs, sha_head)
@@ -241,6 +241,8 @@ pub mod git {
 
 //95dcfa3633004da0049d3d0fa03f80589cbcaf31
 //23f0bc3b5c7c3108e41c448f01a3db31e7064bbb
+//
+
 //003f23f0bc3b5c7c3108e41c448f01a3db31e7064bbb
 
 
