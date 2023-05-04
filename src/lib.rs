@@ -191,10 +191,7 @@ pub mod git {
         };
 
         println!("{:?}",data_from_git);
-        
-
-      
-
+    
     }
 
     fn get_data_form_git(link: String, body : String) -> Result<bytes::Bytes, io::Error>{
