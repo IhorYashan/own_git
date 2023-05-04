@@ -1,5 +1,6 @@
 pub mod git {
     use reqwest::header::CONTENT_TYPE;
+    use std::path::PathBuf;
     use reqwest::header::HeaderMap;
     use reqwest::header::HeaderValue;
     mod zlib;
@@ -8,18 +9,14 @@ pub mod git {
     use std::fs;
     use std::fs::File;
     use std::io::Read;
+    use std::env;
     use std::io;
 
-    pub fn do_git_init(args: &Vec<String>) {
-        if args[1] == "init" {
+    pub fn do_git_init() {
             fs::create_dir(".git").unwrap();
             fs::create_dir(".git/objects").unwrap();
             fs::create_dir(".git/refs").unwrap();
-            fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
-            println!("Initialized git directory")
-        } else {
-            // println!("unknown command: {}", args[1])
-        }
+            fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();       
     }
 
     pub fn read_blob(blob_file: String) {
@@ -169,6 +166,11 @@ pub mod git {
        // let mut sha_refs = String::new();
        // let mut sha_head = String::new();
 
+       fs::create_dir(_dir_name.clone()).unwrap();
+       let dir_root = PathBuf::from(_dir_name.clone());
+       env::set_current_dir(dir_root).unwrap();
+
+       do_git_init();
 
 
         let link = format!("{}/info/refs?service=git-upload-pack",link);

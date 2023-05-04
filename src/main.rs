@@ -6,7 +6,11 @@ use std::fs;
 async fn main() {
     let args: Vec<String> = env::args().collect();
 
-    git::do_git_init(&args);
+    
+
+    if args[1] == "init" {
+        git::do_git_init();
+    }
 
     if args[1] == "cat-file" && args[2] == "-p" {
         let blob_file = &args[3];
@@ -37,6 +41,8 @@ async fn main() {
         );
 
         println!("{}", sha_commit);
+
+       
     }
 
    // println!("before clone");
