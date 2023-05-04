@@ -5,7 +5,6 @@ pub mod git {
     use reqwest::header::HeaderValue;
     mod zlib;
     extern crate hex;
-    //use std::collections::HashMap;
     use std::fs;
     use std::fs::File;
     use std::io::Read;
