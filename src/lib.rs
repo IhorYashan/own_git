@@ -1,11 +1,14 @@
 pub mod git {
-
+    use reqwest::header::CONTENT_TYPE;
+    use reqwest::header::HeaderMap;
+    use reqwest::header::HeaderValue;
     mod zlib;
     extern crate hex;
     //use std::collections::HashMap;
     use std::fs;
     use std::fs::File;
     use std::io::Read;
+    use std::io;
 
     pub fn do_git_init(args: &Vec<String>) {
         if args[1] == "init" {
@@ -171,15 +174,44 @@ pub mod git {
         let link = format!("{}/info/refs?service=git-upload-pack",link);
         println!("link to search : {}", link);
         //let body = get_data(&link);
-        let body = reqwest::blocking::get(link).unwrap().text().unwrap();
+        let body = reqwest::blocking::get(link.clone()).unwrap().text().unwrap();
         let (sha_refs, sha_head) = extract_commit_hash(&body);
     
 
         print!("sha_refs : {}",&sha_refs);
         print!("sha_head : {}",&sha_head);
-        let (str_buffer,_bytes) =  zlib::decode_data(sha_refs.as_bytes());
-        println!("{}",str_buffer);
 
+
+        let body = format!("0032want {}\n",sha_refs.clone());
+        let data = get_data_form_git(link.clone(),body);
+        
+        let data_from_git = match data {
+            Ok(data) => data,
+            _ => panic!("Something go wrong with post request "),
+        };
+
+        println!("{:?}",data_from_git);
+        
+
+        //let (str_buffer,_bytes) =  zlib::decode_data(sha_refs.as_bytes());
+        //println!("{}",str_buffer);
+
+    }
+
+    fn get_data_form_git(link: String, body : String) -> Result<bytes::Bytes, io::Error>{
+
+    let mut headers = HeaderMap::new();
+        headers.insert(
+             CONTENT_TYPE,
+                HeaderValue::from_static("application/x-git-upload-pack-request"),
+            );
+
+            let client = reqwest::blocking::Client::new();
+    let client_req = client.post(link).headers(headers).body(body);
+    let response_data = client_req.send().unwrap();
+     
+    let response_data = response_data.bytes().unwrap();
+    Ok(response_data)
     }
 
     fn extract_commit_hash(response: &str) -> (&str,&str)  {
