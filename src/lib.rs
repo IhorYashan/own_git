@@ -179,8 +179,8 @@ pub mod git {
         let (sha_refs, sha_head) = extract_commit_hash(&body);
     
 
-        print!("sha_refs : {}",&sha_refs);
-        print!("sha_head : {}",&sha_head);
+        println!("sha_refs : {}",&sha_refs);
+        println!("sha_head : {}",&sha_head);
 
 
         let body = format!("0032want {}\n",sha_refs.clone());
