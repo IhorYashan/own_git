@@ -184,7 +184,7 @@ pub mod git {
 
     fn extract_commit_hash(response: &str) -> (&str,&str)  {
 
-        println!("response : {}",response);
+        println!("response : \n {}",response);
         let index = match response.find("refs/heads/master\n0000") {
             Some(index) => {index},
             None => panic!("panic occurs !")
@@ -192,9 +192,9 @@ pub mod git {
         };
         let sha_refs = &response[index-45..index];
 
-        println!("{}",&response);
+        println!("before head : \n {}",&response);
 
-        let index = match response.find("HEADmulti_ack") {
+        let index = match response.find("HEAD") {
             Some(index) => {index},
             None => panic!("panic occurs !")
 
