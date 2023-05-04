@@ -193,8 +193,7 @@ pub mod git {
         println!("{:?}",data_from_git);
         
 
-        //let (str_buffer,_bytes) =  zlib::decode_data(sha_refs.as_bytes());
-        //println!("{}",str_buffer);
+      
 
     }
 
