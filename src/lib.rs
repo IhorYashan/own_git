@@ -219,7 +219,7 @@ pub mod git {
             None => panic!("panic occurs !")
 
         };
-        let sha_refs = &response[index-42..index];
+        let sha_refs = &response[index-41..index];
 
         println!("before head : \n {}",&response);
 
