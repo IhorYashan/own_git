@@ -192,6 +192,7 @@ pub mod git {
         };
         let sha_refs = &response[index-45..index];
 
+        println!("{}",&response);
 
         let index = match response.find("HEADmulti_ack") {
             Some(index) => {index},
