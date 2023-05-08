@@ -210,7 +210,7 @@ pub mod git {
         let client_req = client.post(link).headers(headers).body(body);
 
             println!("client_req : {:#?}",client_req);
-
+            println!("headers : {:#?}",headers);
         let response_data = client_req.send().unwrap();
             
 
