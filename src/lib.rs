@@ -184,6 +184,7 @@ pub mod git {
 
 
         let body = format!("0032want {}\n00000009done\n",sha_refs.clone());
+        println!("post_url : {}, body : {} ",post_url, body);
         let data = get_data_form_git(post_url.clone(),body);
         
         let data_from_git = match data {
