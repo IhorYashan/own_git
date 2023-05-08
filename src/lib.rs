@@ -161,12 +161,12 @@ pub mod git {
         body
     }
    */  
-    pub async fn clone_repo(_dir_name: String, link: String) { 
+    pub async fn clone_repo(dir_name: String, link: String) { 
        // let mut sha_refs = String::new();
        // let mut sha_head = String::new();
 
-       fs::create_dir(_dir_name.clone()).unwrap();
-       let dir_root = PathBuf::from(_dir_name.clone());
+       fs::create_dir(dir_name.clone()).unwrap();
+       let dir_root = PathBuf::from(dir_name.clone());
        env::set_current_dir(dir_root).unwrap();
 
        do_git_init();
@@ -187,7 +187,7 @@ pub mod git {
         let data = get_data_form_git(link.clone(),body);
         
         let data_from_git = match data {
-            Ok(data) => data,
+            Ok(data) => println!("{:?} : data in match ",data),
             _ => panic!("Something go wrong with post request "),
         };
 
@@ -238,6 +238,8 @@ pub mod git {
     }
 }
 
+//23f0bc3b5c7c3108e41c448f01a3db31e7064bbb
+//23f0bc3b5c7c3108e41c448f01a3db31e7064bbb
 
 //95dcfa3633004da0049d3d0fa03f80589cbcaf31
 //23f0bc3b5c7c3108e41c448f01a3db31e7064bbb
