@@ -171,7 +171,8 @@ pub mod git {
 
        do_git_init();
 
-        let url = link.clone();
+        //let link_post = 
+        let post_url = link.clone() + &"/git-upload-pack".to_string();
         let link = format!("{}/info/refs?service=git-upload-pack",link);
         println!("link to search : {}", link);       
         let body = reqwest::blocking::get(link.clone()).unwrap().text().unwrap();
@@ -183,7 +184,7 @@ pub mod git {
 
 
         let body = format!("0032want {}\n00000009done\n",sha_refs.clone());
-        let data = get_data_form_git(url.clone(),body);
+        let data = get_data_form_git(post_url.clone(),body);
         
         let data_from_git = match data {
             Ok(data) => println!("{:?} : data in match ",data),
