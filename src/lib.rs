@@ -206,8 +206,14 @@ pub mod git {
         let client = reqwest::blocking::Client::new();
         let client_req = client.post(link).headers(headers).body(body);
         let response_data = client_req.send().unwrap();
-     
+            
+
+        println!("response_data : {:#?} , status {}",response_data,response_data.status());   
+
         let response_data = response_data.bytes().unwrap();
+
+        
+
         Ok(response_data)
     }
 
