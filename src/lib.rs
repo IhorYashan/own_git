@@ -204,8 +204,12 @@ pub mod git {
                 HeaderValue::from_static("application/x-git-upload-pack-request"),
             );
 
+        
         let client = reqwest::blocking::Client::new();
         let client_req = client.post(link).headers(headers).body(body);
+
+            println!("client_req : {:#?}",client_req);
+
         let response_data = client_req.send().unwrap();
             
 
