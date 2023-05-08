@@ -1,21 +1,21 @@
 pub mod git {
-    use reqwest::header::CONTENT_TYPE;
-    use std::path::PathBuf;
     use reqwest::header::HeaderMap;
     use reqwest::header::HeaderValue;
+    use reqwest::header::CONTENT_TYPE;
+    use std::path::PathBuf;
     mod zlib;
     extern crate hex;
+    use std::env;
     use std::fs;
     use std::fs::File;
-    use std::io::Read;
-    use std::env;
     use std::io;
+    use std::io::Read;
 
     pub fn do_git_init() {
-            fs::create_dir(".git").unwrap();
-            fs::create_dir(".git/objects").unwrap();
-            fs::create_dir(".git/refs").unwrap();
-            fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();       
+        fs::create_dir(".git").unwrap();
+        fs::create_dir(".git/objects").unwrap();
+        fs::create_dir(".git/refs").unwrap();
+        fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
     }
 
     pub fn read_blob(blob_file: String) {
@@ -59,7 +59,6 @@ pub mod git {
         (hash_path, hash_file)
     }
 
-    
     pub fn write_tree(file_path: &str) -> String {
         let mut sha_out: String = String::new();
         let mut entries: Vec<_> = fs::read_dir(file_path)
@@ -150,103 +149,91 @@ pub mod git {
         sha_commit
     }
 
+    /*
+     async fn get_data(url: &str) -> &str {
+         let response = reqwest::get(url).await.unwrap();
+         let body = response.text().await.unwrap();
+         body
+     }
+    */
+    pub fn clone_repo(dir_name: String, link: String) {
+        // let mut sha_refs = String::new();
+        // let mut sha_head = String::new();
 
+        fs::create_dir(dir_name.clone()).unwrap();
+        let dir_root = PathBuf::from(dir_name.clone());
+        env::set_current_dir(dir_root).unwrap();
 
+        do_git_init();
 
-
-/*
-    async fn get_data(url: &str) -> &str {
-        let response = reqwest::get(url).await.unwrap();
-        let body = response.text().await.unwrap();
-        body
-    }
-   */  
-    pub async fn clone_repo(dir_name: String, link: String) { 
-       // let mut sha_refs = String::new();
-       // let mut sha_head = String::new();
-
-       fs::create_dir(dir_name.clone()).unwrap();
-       let dir_root = PathBuf::from(dir_name.clone());
-       env::set_current_dir(dir_root).unwrap();
-
-       do_git_init();
-
-        //let link_post = 
+        //let link_post =
         let post_url = link.clone() + &"/git-upload-pack".to_string();
-        let link = format!("{}/info/refs?service=git-upload-pack",link);
-        println!("link to search : {}", link);       
-        let body = reqwest::blocking::get(link.clone()).unwrap().text().unwrap();
+        let link = format!("{}/info/refs?service=git-upload-pack", link);
+        println!("link to search : {}", link);
+        let body = reqwest::blocking::get(link.clone())
+            .unwrap()
+            .text()
+            .unwrap();
         let (sha_refs, sha_head) = extract_commit_hash(&body);
-    
 
-        println!("sha_refs : {}",&sha_refs);
-        println!("sha_head : {}",&sha_head);
+        println!("sha_refs : {}", &sha_refs);
+        println!("sha_head : {}", &sha_head);
 
+        let body = format!("0032want {}\n00000009done\n", sha_refs.clone());
+        println!("post_url : {}, body : {} ", post_url, body);
+        let data = get_data_form_git(post_url.clone(), body);
 
-        let body = format!("0032want {}\n00000009done\n",sha_refs.clone());
-        println!("post_url : {}, body : {} ",post_url, body);
-        let data = get_data_form_git(post_url.clone(),body);
-        
         let data_from_git = match data {
-            Ok(data) => println!("{:?} : data in match ",data),
+            Ok(data) => println!("{:?} : data in match ", data),
             _ => panic!("Something go wrong with post request "),
         };
 
-        println!("{:?}",data_from_git);
-    
+        println!("{:?}", data_from_git);
     }
+    //
 
-
-    fn get_data_form_git(link: String, body : String) -> Result<bytes::Bytes, io::Error>{
-
+    fn get_data_form_git(link: String, body: String) -> Result<bytes::Bytes, io::Error> {
         let mut headers = HeaderMap::new();
         headers.insert(
-             CONTENT_TYPE,
-                HeaderValue::from_static("application/x-git-upload-pack-request"),
-            );
+            CONTENT_TYPE,
+            HeaderValue::from_static("application/x-git-upload-pack-request"),
+        );
 
-        
         let client = reqwest::blocking::Client::new();
         let client_req = client.post(link).headers(headers.clone()).body(body);
 
-            println!("client_req : {:#?}",client_req);
-            println!("headers : {:#?}",headers.clone());
+        println!("client_req : {:#?}", client_req);
+        println!("headers : {:#?}", headers.clone());
         let response_data = client_req.send().unwrap();
-            
 
-        println!("response_data : {:#?} , status {}",response_data,response_data.status());   
+        println!(
+            "response_data : {:#?} , status {}",
+            response_data,
+            response_data.status()
+        );
 
         let response_data = response_data.bytes().unwrap();
-
-        
 
         Ok(response_data)
     }
 
-    fn extract_commit_hash(response: &str) -> (&str,&str)  {
-
-        println!("response : \n {}",response);
+    fn extract_commit_hash(response: &str) -> (&str, &str) {
+        println!("response : \n {}", response);
         let index = match response.find("refs/heads/master\n0000") {
-            Some(index) => {index},
-            None => panic!("panic occurs !")
-
+            Some(index) => index,
+            None => panic!("panic occurs !"),
         };
-        let sha_refs = &response[index-41..index];
+        let sha_refs = &response[index - 41..index];
 
-        println!("before head : \n {}",&response);
+        println!("before head : \n {}", &response);
 
         let index = match response.find("HEAD") {
-            Some(index) => {index},
-            None => panic!("panic occurs !")
-
+            Some(index) => index,
+            None => panic!("panic occurs !"),
         };
-        
 
-        
-        let sha_head = &response[index-41..index];
+        let sha_head = &response[index - 41..index];
 
-        
         (sha_refs, sha_head)
     }
 }
-

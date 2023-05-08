@@ -2,11 +2,8 @@ use git_starter_rust::git;
 use std::env;
 use std::fs;
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let args: Vec<String> = env::args().collect();
-
-    
 
     if args[1] == "init" {
         git::do_git_init();
@@ -41,16 +38,13 @@ async fn main() {
         );
 
         println!("{}", sha_commit);
-
-       
     }
-
 
     if args[1] == "clone" {
         let dir_name = args[3].to_string();
         let link = args[2].to_string();
         println!("dir_name : {}", dir_name);
-       
-        git::clone_repo(dir_name, link).await;
+
+        git::clone_repo(dir_name, link);
     }
 }
