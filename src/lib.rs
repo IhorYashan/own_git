@@ -173,8 +173,7 @@ pub mod git {
 
 
         let link = format!("{}/info/refs?service=git-upload-pack",link);
-        println!("link to search : {}", link);
-        //let body = get_data(&link);
+        println!("link to search : {}", link);       
         let body = reqwest::blocking::get(link.clone()).unwrap().text().unwrap();
         let (sha_refs, sha_head) = extract_commit_hash(&body);
     
