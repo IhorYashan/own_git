@@ -237,10 +237,3 @@ pub mod git {
     }
 }
 
-
-//95dcfa3633004da0049d3d0fa03f80589cbcaf31
-//23f0bc3b5c7c3108e41c448f01a3db31e7064bbb
-//
-
-//003f23f0bc3b5c7c3108e41c448f01a3db31e7064bbb
-
