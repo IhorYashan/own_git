@@ -163,7 +163,7 @@ pub mod git {
         fs::create_dir(dir_name.clone()).unwrap();
         let dir_root = PathBuf::from(dir_name.clone());
         env::set_current_dir(dir_root).unwrap();
-
+        //
         do_git_init();
 
         //let link_post =
