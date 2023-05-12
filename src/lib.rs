@@ -38,7 +38,7 @@ pub mod git {
         #[allow(unsafe_code)]
         let content_file_ = unsafe { String::from_utf8_unchecked(content_file.clone()) };
 
-        let object_data = format!("{} {}\0", file_type, content_file.len());
+        let object_data = format!("{} {}\x00", file_type, content_file.len());
 
         let data_to_compress = object_data + &format!("{}", content_file_);
 
@@ -60,7 +60,7 @@ pub mod git {
             full_hash_path_dir = format!("{}{}", sub_hash_path_dir, hash_file);
         }
 
-        fs::create_dir(sub_hash_path_dir).unwrap();
+        fs::create_dir_all(sub_hash_path_dir).unwrap();
         fs::write(full_hash_path_dir, compressed_data).unwrap();
 
         hash_blob_file
@@ -260,6 +260,7 @@ pub mod git {
                 seek += bytes;
             } else {
                 //code
+                //
             }
         }
     }
