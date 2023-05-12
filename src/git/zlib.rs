@@ -35,3 +35,5 @@ pub fn encode_data(data_to_compress: String) -> (String, Vec<u8>) {
     let hash_blob_file = hex::encode(&hash);
     (hash_blob_file, compressed_data)
 }
+
+//
