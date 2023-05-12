@@ -18,7 +18,7 @@ fn main() {
     if args[1] == "hash-object" && args[2] == "-w" {
         let content_file = fs::read(&args[3].to_string()).unwrap();
 
-        print!("{}", git::write_obj(content_file, "blob"));
+        print!("{}", git::write_obj(content_file, "blob", "./"));
     }
 
     if args[1] == "ls-tree" && args[2] == "--name-only" {
