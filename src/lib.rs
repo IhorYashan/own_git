@@ -222,12 +222,12 @@ pub mod git {
             obj_counter += 1;
             let first = data_bytes[seek];
             let mut obj_type: usize = ((first & 112) >> 4).into();
-            //  println!("obj_type: {:?}", obj_type);
+            println!("obj_type: {:?}", obj_type);
             while data_bytes[seek] > 128 {
                 seek += 1;
             }
             seek += 1;
-            // println!("seek : {:?}", seek);
+            println!("seek : {:?}", seek);
             let data_type = [
                 "",
                 "commit",
