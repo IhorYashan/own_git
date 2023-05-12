@@ -5,12 +5,16 @@ pub mod git {
     use std::path::PathBuf;
     mod zlib;
     extern crate hex;
+    use flate2::read::ZlibDecoder;
+    use flate2::write::ZlibEncoder;
+    use flate2::Compression;
     use std::collections::HashMap;
     use std::env;
     use std::fs;
     use std::fs::File;
     use std::io;
     use std::io::Read;
+
     pub fn do_git_init() {
         fs::create_dir(".git").unwrap();
         fs::create_dir(".git/objects").unwrap();
@@ -239,23 +243,31 @@ pub mod git {
                 "refs_delta",
             ];
             if obj_type < 7 {
-            } else {
-                let (git_data, bytes) = zlib::decode_data(&data_bytes[seek..]);
+                //let (git_data, bytes) = zlib::decode_data(&data_bytes[seek..]);
                 //let mut v_git_data = Vec::new();
                 //git_data.read_to_end(&mut v_git_data)?;
 
                 //#[allow(unsafe_code)]
                 //let s_git_data = unsafe { String::from_utf8_unchecked(v_git_data) };
 
+                let mut git_data = ZlibDecoder::new(&data_bytes[seek..]);
+                //let git_data = git_data.to_vec();
+                let mut git_data_vector = Vec::new();
+                git_data.read_to_end(&mut git_data_vector).unwrap();
+
+                #[allow(unsafe_code)]
+                let git_data_string = unsafe { String::from_utf8_unchecked(git_data_vector) };
+
                 let hash_obj = write_obj(
-                    git_data.clone().into_bytes(),
+                    git_data_string.clone().into_bytes(),
                     data_type[obj_type],
                     &dir_name,
                 );
 
-                objects.insert(hash_obj, (git_data, obj_type));
+                objects.insert(hash_obj, (git_data_string, obj_type));
 
-                seek += bytes;
+                seek += git_data.total_in() as usize;
+            } else {
             }
         }
     }
