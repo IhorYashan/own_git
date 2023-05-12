@@ -50,7 +50,7 @@ pub mod git {
         let mut full_hash_path_dir = String::new();
 
         if target_dir != "./" {
-            sub_hash_path_dir = format!(".git/objects/{}/", hash_dir);
+            sub_hash_path_dir = format!("{}/.git/objects/{}/", target_dir, hash_dir);
             full_hash_path_dir = format!("{}/{}{}", target_dir, sub_hash_path_dir, hash_file);
         } else {
             sub_hash_path_dir = format!(".git/objects/{}/", hash_dir);
