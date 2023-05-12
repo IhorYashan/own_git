@@ -57,8 +57,8 @@ pub mod git {
             full_hash_path_dir = format!("{}{}", sub_hash_path_dir, hash_file);
         }
 
-        println!("sub_hash_path_dir : {:?}", sub_hash_path_dir);
-        println!("full_hash_path_dir : {:?}", full_hash_path_dir);
+        //println!("sub_hash_path_dir : {:?}", sub_hash_path_dir);
+        //println!("full_hash_path_dir : {:?}", full_hash_path_dir);
         fs::create_dir(sub_hash_path_dir).unwrap();
         fs::write(full_hash_path_dir, compressed_data).unwrap();
 
