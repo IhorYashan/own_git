@@ -241,6 +241,8 @@ pub mod git {
                 "refs_delta",
             ];
             if obj_type < 7 {
+                println!("{}", obj_counter);
+
                 let (git_data, bytes) = zlib::decode_data(&data_bytes[seek..]);
                 //let mut v_git_data = Vec::new();
                 //git_data.read_to_end(&mut v_git_data)?;
