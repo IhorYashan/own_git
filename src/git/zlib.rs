@@ -21,9 +21,8 @@ pub fn decode_data(compressed_data: &[u8]) -> (String, usize) {
     }
 
     #[allow(unsafe_code)]
-    let string_buffer = unsafe { String::from_utf8_unchecked(&buffer[..bytes]) };
-
-    // string_buffer.push_str(&String::from_utf8_lossy(&buffer[..bytes]));
+    let string_buffer = unsafe { String::from_utf8_unchecked((&buffer[..bytes]).to_vec()) };
+    //string_buffer.push_str(&String::from_utf8_lossy(&buffer[..bytes]));
 
     (string_buffer, bytes)
 }
