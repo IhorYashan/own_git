@@ -258,6 +258,8 @@ pub mod git {
 
                 objects.insert(hash_obj, (git_data, obj_type));
 
+                println!("{:?}", objects);
+
                 seek += bytes;
             } else {
                 //code
