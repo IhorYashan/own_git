@@ -51,7 +51,7 @@ pub mod git {
 
         if target_dir != "./" {
             sub_hash_path_dir = format!("{}/.git/objects/{}/", target_dir, hash_dir);
-            full_hash_path_dir = sub_hash_path_dir + hash_file;
+            full_hash_path_dir = sub_hash_path_dir.clone() + &hash_file;
         } else {
             sub_hash_path_dir = format!(".git/objects/{}/", hash_dir);
             full_hash_path_dir = format!("{}{}", sub_hash_path_dir, hash_file);
