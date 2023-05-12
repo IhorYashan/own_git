@@ -52,13 +52,13 @@ pub mod git {
         if target_dir != "./" {
             sub_hash_path_dir = format!("{}/.git/objects/{}/", target_dir, hash_dir);
             full_hash_path_dir = sub_hash_path_dir.clone() + &hash_file;
+            println!("sub_hash_path_dir : {:?}", sub_hash_path_dir);
+            println!("full_hash_path_dir : {:?}", full_hash_path_dir);
         } else {
             sub_hash_path_dir = format!(".git/objects/{}/", hash_dir);
             full_hash_path_dir = format!("{}{}", sub_hash_path_dir, hash_file);
         }
 
-        //println!("sub_hash_path_dir : {:?}", sub_hash_path_dir);
-        //println!("full_hash_path_dir : {:?}", full_hash_path_dir);
         fs::create_dir(sub_hash_path_dir).unwrap();
         fs::write(full_hash_path_dir, compressed_data).unwrap();
 
