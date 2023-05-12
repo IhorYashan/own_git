@@ -33,7 +33,7 @@ pub mod git {
         print!("{}", &buffer[8..]);
     }
 
-    pub fn write_obj(content_file: Vec<u8>, file_type: &str) -> String {
+    pub fn write_obj(content_file: Vec<u8>, file_type: &str, target_dir: &str) -> String {
         #[allow(unsafe_code)]
         let content_file_ = unsafe { String::from_utf8_unchecked(content_file.clone()) };
 
@@ -45,11 +45,17 @@ pub mod git {
 
         let hash_dir = &hash_blob_file[..2];
         let hash_file = &hash_blob_file[2..];
-        let hash_path_dir = format!(".git/objects/{}/", hash_dir);
-        let full_hash_path = format!("{}{}", hash_path_dir, hash_file);
 
-        fs::create_dir(hash_path_dir).unwrap();
-        fs::write(full_hash_path, compressed_data).unwrap();
+        if (target_dir != "./") {
+            let sub_hash_path_dir = format!(".git/objects/{}/", hash_dir);
+            let full_hash_path_dir = format!("{}{}{}", target_dir, sub_hash_path_dir, hash_file);
+        } else {
+            let sub_hash_path_dir = format!(".git/objects/{}/", hash_dir);
+            let full_hash_path_dir = format!("{}{}", sub_hash_path_dir, hash_file);
+        }
+
+        fs::create_dir(sub_hash_path_dir).unwrap();
+        fs::write(full_hash_path_dir, compressed_data).unwrap();
 
         hash_blob_file
     }
@@ -87,7 +93,7 @@ pub mod git {
             } else {
                 mode = "100644";
                 let content_file = fs::read(&path_name).unwrap();
-                let sha_file1 = write_obj(content_file, "blob");
+                let sha_file1 = write_obj(content_file, "blob", "./");
                 sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
             }
             #[allow(unsafe_code)]
@@ -104,7 +110,7 @@ pub mod git {
             );
         }
 
-        let res_sha = write_obj(sha_out.into_bytes(), "tree");
+        let res_sha = write_obj(sha_out.into_bytes(), "tree", "./");
         res_sha
     }
 
@@ -145,7 +151,7 @@ pub mod git {
 
         let content_commit = content_commit + &message + "\n";
 
-        let sha_commit = write_obj(content_commit.into_bytes(), "commit");
+        let sha_commit = write_obj(content_commit.into_bytes(), "commit", "./");
         sha_commit
     }
 
@@ -176,19 +182,75 @@ pub mod git {
             .unwrap();
         let (sha_refs, sha_head) = extract_commit_hash(&body);
 
-        println!("sha_refs : {}", &sha_refs);
+        println!("sha_refs : {:?}", &sha_refs);
+
         println!("sha_head : {}", &sha_head);
 
-        let body = format!("0032want {}\n00000009done\n", sha_refs.clone());
+        let body = format!("0032want {}\n00000009done\n", &sha_refs[..40]);
         println!("post_url : {}, body : {} ", post_url, body);
         let data = get_data_form_git(post_url.clone(), body);
 
         let data_from_git = match data {
-            Ok(data) => println!("{:?} : data in match ", data),
+            Ok(data) => {
+                println!("is ok");
+                //println!("{:?} : data in match ", data);
+                data
+            }
             _ => panic!("Something go wrong with post request "),
         };
 
-        println!("{:?}", data_from_git);
+        //    print!("buff : {:?}", data_from_git);
+
+        // --- parssing data --- //
+
+        let git_data_size = data_from_git.len() - 20;
+        println!("git_data_size : {}", git_data_size);
+        let entries_bytes = &data_from_git[16..20];
+        println!("entries_bytes : {:?}", entries_bytes);
+        let num = u32::from_be_bytes(entries_bytes.try_into().unwrap());
+        println!("num: {:?}", num);
+        let data_bytes: Vec<u8> = data_from_git[20..git_data_size].try_into().unwrap();
+
+        let mut objects = HashMap::new();
+        let mut seek = 0;
+        let mut obj_counter = 0;
+
+        while obj_counter != num {
+            obj_counter += 1;
+            let first = data_bytes[seek];
+            let mut obj_type: usize = ((first & 112) >> 4).into();
+            //  println!("obj_type: {:?}", obj_type);
+            while data_bytes[seek] > 128 {
+                seek += 1;
+            }
+            seek += 1;
+            // println!("seek : {:?}", seek);
+            let data_type = [
+                "",
+                "commit",
+                "tree",
+                "blob",
+                "",
+                "tag",
+                "ofs_delta",
+                "refs_delta",
+            ];
+            if obj_type < 7 {
+            } else {
+                let mut git_data = zlib::decode_data(&data_bytes[seek..]);
+                //let mut v_git_data = Vec::new();
+                //git_data.read_to_end(&mut v_git_data)?;
+
+                //#[allow(unsafe_code)]
+                //let s_git_data = unsafe { String::from_utf8_unchecked(v_git_data) };
+
+                let hash_obj = write_obj(&git_data, data_type[obj_type], &target_dir);
+
+                objs.insert(hash_obj, (git_data, obj_type));
+
+                seek += git_data.total_in() as usize;
+            }
+        }
     }
     //
 
@@ -200,7 +262,10 @@ pub mod git {
         );
 
         let client = reqwest::blocking::Client::new();
-        let client_req = client.post(link).headers(headers.clone()).body(body);
+        let client_req = client
+            .post(link)
+            .header("content-type", "application/x-git-upload-pack-request")
+            .body(body);
 
         println!("client_req : {:#?}", client_req);
         println!("headers : {:#?}", headers.clone());
