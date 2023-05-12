@@ -8,7 +8,6 @@ pub mod git {
     use std::collections::HashMap;
     use std::env;
     use std::fs;
-
     use std::fs::File;
     use std::io;
     use std::io::Read;
@@ -38,9 +37,9 @@ pub mod git {
         #[allow(unsafe_code)]
         let content_file_ = unsafe { String::from_utf8_unchecked(content_file.clone()) };
 
-        let object_data = format!("{} {}\x00", file_type, content_file.len());
+        let header_blob = format!("{} {}\x00", file_type, content_file.len());
 
-        let data_to_compress = object_data + &format!("{}", content_file_);
+        let data_to_compress = header_blob + &format!("{}", content_file_);
 
         let (hash_blob_file, compressed_data) = zlib::encode_data(data_to_compress);
 
@@ -242,21 +241,15 @@ pub mod git {
                 "refs_delta",
             ];
             if obj_type < 7 {
-                //let (git_data, bytes) = zlib::decode_data(&data_bytes[seek..]);
+                let (git_data, bytes) = zlib::decode_data(&data_bytes[seek..]);
                 //let mut v_git_data = Vec::new();
                 //git_data.read_to_end(&mut v_git_data)?;
 
                 //#[allow(unsafe_code)]
                 //let s_git_data = unsafe { String::from_utf8_unchecked(v_git_data) };
-                let mut git_data = ZlibDecoder::new(&data_bytes[seek..]);
-                let mut v_git_data = Vec::new();
-                git_data.read_to_end(&mut v_git_data)?;
-
-                #[allow(unsafe_code)]
-                let s_git_data = unsafe { String::from_utf8_unchecked(v_git_data) };
 
                 let hash_obj = write_obj(
-                    s_git_data.clone().into_bytes(),
+                    git_data.clone().into_bytes(),
                     data_type[obj_type],
                     &dir_name,
                 );
