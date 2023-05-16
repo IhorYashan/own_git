@@ -192,10 +192,13 @@ pub mod git {
         let post_url = link.clone() + &"/git-upload-pack".to_string();
         let link = format!("{}/info/refs?service=git-upload-pack", link);
         println!("link to search : {}", link);
+        
         let body = reqwest::blocking::get(link.clone())
             .unwrap()
             .text()
             .unwrap();
+
+
         let (sha_refs, sha_head) = extract_commit_hash(&body);
 
         println!("sha_refs : {:?}", &sha_refs);
@@ -204,7 +207,7 @@ pub mod git {
 
         let sha_refs = &sha_refs[..40];
 
-        print!("sha_refs : {:?}",sha_refs)
+        print!("sha_refs : {:?}", sha_refs);
 
         let body = format!("0032want {}\n00000009done\n", &sha_refs);
         println!("post_url : {}, body : {} ", post_url, body);
