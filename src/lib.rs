@@ -340,7 +340,7 @@ pub mod git {
 
             let mode_name = &tree[..pos];
 
-            let mut mode_name = mode_name.split(' ');
+            let mut mode_name = mode_name.split(|num: char| num == ' ');
 
             let mode = mode_name.next().unwrap();
             let name = mode_name.next().unwrap();
