@@ -353,6 +353,37 @@ pub mod git {
 
             enteries.push((mode.clone(), name.clone(), sha.clone()));
         }
+        for entry in enteries {
+            if entry.0 == "40000" {
+                //  println!("blob_sha 40000: {:#?}", &entry.1);
+                checkout(
+                    &entry.2.to_string(),
+                    &(file_path.clone().to_owned() + &format!("/{}", entry.1).to_string()),
+                    &dir_name.to_string(),
+                );
+            } else {
+                let blob_sha = entry.2;
+
+                let curr_dir = dir_name.clone().to_owned()
+                    + &format!("/.git/objects/{}/{}", &blob_sha[..2], &blob_sha[2..]);
+
+                let git_data = fs::read(curr_dir).unwrap();
+                let (s_git_data, bytes) = zlib::decode_data(&git_data[..]);
+
+                let pos = s_git_data
+                    .as_bytes()
+                    .iter()
+                    .position(|&r| r == '\x00' as u8)
+                    .unwrap();
+
+                let content = &s_git_data[pos + 1..];
+
+                fs::write(
+                    file_path.clone().to_owned() + &format!("/{}", entry.1),
+                    content,
+                );
+            }
+        }
     }
 
     fn apply_delta(delta: &[u8], base: &[u8]) -> String {
