@@ -204,6 +204,8 @@ pub mod git {
 
         let sha_refs = &sha_refs[..40];
 
+        print!("sha_refs : {:?}",sha_refs)
+
         let body = format!("0032want {}\n00000009done\n", &sha_refs);
         println!("post_url : {}, body : {} ", post_url, body);
         let data = get_data_form_git(post_url.clone(), body);
