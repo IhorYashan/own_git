@@ -2,12 +2,12 @@ pub mod git {
     use reqwest::header::HeaderMap;
     use reqwest::header::HeaderValue;
     use reqwest::header::CONTENT_TYPE;
-    use std::path::PathBuf;
+
     mod zlib;
     extern crate hex;
 
     use std::collections::HashMap;
-    use std::env;
+
     use std::fs;
     use std::fs::File;
     use std::io;
@@ -20,14 +20,15 @@ pub mod git {
     }
 
     fn create_dir(dir_name: &str) {
-        fs::create_dir(dir_name);
-        fs::create_dir(dir_name.to_owned() + "/.git");
-        fs::create_dir(dir_name.to_owned() + "/.git/objects/");
-        fs::create_dir(dir_name.to_owned() + "/.git/refs");
+        fs::create_dir(dir_name).unwrap();
+        fs::create_dir(dir_name.to_owned() + "/.git").unwrap();
+        fs::create_dir(dir_name.to_owned() + "/.git/objects/").unwrap();
+        fs::create_dir(dir_name.to_owned() + "/.git/refs").unwrap();
         fs::write(
             dir_name.to_owned() + "/.git/HEAD",
             "ref: refs/heads/master\n",
-        );
+        )
+        .unwrap();
     }
 
     pub fn read_blob(blob_file: String) {
@@ -58,21 +59,21 @@ pub mod git {
         let hash_dir = &hash_blob_file[..2];
         let hash_file = &hash_blob_file[2..];
 
-        let mut sub_hash_path_dir = String::new();
-        let mut full_hash_path_dir = String::new();
+        let mut _sub_hash_path_dir = String::new();
+        let mut _full_hash_path_dir = String::new();
 
         if target_dir != "./" {
-            sub_hash_path_dir = format!("{}.git/objects/{}/", target_dir, hash_dir);
-            full_hash_path_dir = sub_hash_path_dir.clone() + &hash_file;
-            println!("sub_hash_path_dir : {:?}", sub_hash_path_dir);
-            println!("full_hash_path_dir : {:?}", full_hash_path_dir);
+            _sub_hash_path_dir = format!("{}.git/objects/{}/", target_dir, hash_dir);
+            _full_hash_path_dir = _sub_hash_path_dir.clone() + &hash_file;
+            println!("sub_hash_path_dir : {:?}", _sub_hash_path_dir);
+            println!("full_hash_path_dir : {:?}", _full_hash_path_dir);
         } else {
-            sub_hash_path_dir = format!(".git/objects/{}/", hash_dir);
-            full_hash_path_dir = format!("{}{}", sub_hash_path_dir, hash_file);
+            _sub_hash_path_dir = format!(".git/objects/{}/", hash_dir);
+            _full_hash_path_dir = format!("{}{}", _sub_hash_path_dir, hash_file);
         }
 
-        fs::create_dir_all(sub_hash_path_dir).unwrap();
-        fs::write(full_hash_path_dir, compressed_data).unwrap();
+        fs::create_dir_all(_sub_hash_path_dir).unwrap();
+        fs::write(_full_hash_path_dir, compressed_data).unwrap();
 
         hash_blob_file
     }
@@ -292,7 +293,7 @@ pub mod git {
             dir_name.to_owned() + &format!("/.git/objects/{}/{}", &sha_refs[..2], &sha_refs[2..]);
 
         let git_data = fs::read(git_path_pack).unwrap();
-        let (delta, bytes) = zlib::decode_data(&git_data.to_vec());
+        let (delta, _bytes) = zlib::decode_data(&git_data.to_vec());
 
         let data = delta.split("\n").next().unwrap().split(" ");
 
@@ -304,12 +305,12 @@ pub mod git {
     //
     fn checkout(sha: &str, file_path: &str, dir_name: &str) {
         //do checkout
-        fs::create_dir_all(&file_path);
+        fs::create_dir_all(&file_path).unwrap();
 
         let git_data =
             fs::read(dir_name.to_string() + &format!("{}/{}", &sha[..2], &sha[2..])).unwrap();
 
-        let (s_git_data, bytes) = zlib::decode_data(&git_data[..]);
+        let (s_git_data, _bytes) = zlib::decode_data(&git_data[..]);
 
         let mut enteries = Vec::new();
 
@@ -368,7 +369,7 @@ pub mod git {
                     + &format!("/.git/objects/{}/{}", &blob_sha[..2], &blob_sha[2..]);
 
                 let git_data = fs::read(curr_dir).unwrap();
-                let (s_git_data, bytes) = zlib::decode_data(&git_data[..]);
+                let (s_git_data, _bytes) = zlib::decode_data(&git_data[..]);
 
                 let pos = s_git_data
                     .as_bytes()
@@ -381,7 +382,8 @@ pub mod git {
                 fs::write(
                     file_path.clone().to_owned() + &format!("/{}", entry.1),
                     content,
-                );
+                )
+                .unwrap();
             }
         }
     }
