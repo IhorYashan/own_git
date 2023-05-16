@@ -351,7 +351,7 @@ pub mod git {
 
             tree = &tree[20..];
 
-            println!("tree: {:#?}", &tree);
+            //println!("tree: {:#?}", &tree);
 
             let sha = hex::encode(&sha[..]);
             let mode = String::from_utf8_lossy(mode.as_bytes());
