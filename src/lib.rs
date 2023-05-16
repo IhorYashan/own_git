@@ -5,6 +5,7 @@ pub mod git {
     use std::path::PathBuf;
     mod zlib;
     extern crate hex;
+
     use std::collections::HashMap;
     use std::env;
     use std::fs;
@@ -191,7 +192,9 @@ pub mod git {
 
         println!("sha_head : {}", &sha_head);
 
-        let body = format!("0032want {}\n00000009done\n", &sha_refs[..40]);
+        let sha_refs = &sha_refs[..40];
+
+        let body = format!("0032want {}\n00000009done\n", &sha_refs);
         println!("post_url : {}, body : {} ", post_url, body);
         let data = get_data_form_git(post_url.clone(), body);
 
@@ -224,7 +227,7 @@ pub mod git {
             obj_counter += 1;
             let first = data_bytes[seek];
             let mut obj_type: usize = ((first & 112) >> 4).into();
-            //  println!("obj_type: {:?}", obj_type);
+            println!("obj_type: {:?}", obj_type);
             while data_bytes[seek] > 128 {
                 seek += 1;
             }
@@ -244,11 +247,6 @@ pub mod git {
                 println!("{}", obj_counter);
 
                 let (git_data, bytes) = zlib::decode_data(&data_bytes[seek..]);
-                //let mut v_git_data = Vec::new();
-                //git_data.read_to_end(&mut v_git_data)?;
-
-                //#[allow(unsafe_code)]
-                //let s_git_data = unsafe { String::from_utf8_unchecked(v_git_data) };
 
                 let hash_obj = write_obj(
                     git_data.clone().into_bytes(),
@@ -258,15 +256,119 @@ pub mod git {
 
                 objects.insert(hash_obj, (git_data, obj_type));
 
-                println!("{:?}", objects);
+                //    println!("{:?}", objects);
 
                 seek += bytes;
             } else {
-                //code
+                let obj_data_bytes = &data_bytes[seek..seek + 20];
+
+                // println!("obj_data_bytes : {:#?}", obj_data_bytes);
+
+                let obj_data_bytes = hex::encode(obj_data_bytes);
+                let (base, elem_num) = objects[&obj_data_bytes].to_owned();
+                seek += 20;
+
+                let (git_data, bytes) = zlib::decode_data(&data_bytes[seek..]);
+
+                let content = apply_delta(&git_data.as_bytes(), &base.as_bytes());
+
+                obj_type = elem_num;
+
+                let hash_obj = write_obj(
+                    git_data.clone().into_bytes(),
+                    data_type[obj_type],
+                    &dir_name,
+                );
+
+                objects.insert(hash_obj, (git_data, obj_type));
+
+                seek += bytes;
             }
         }
+
+        let git_path_pack =
+            dir_name.to_owned() + &format!("/.git/objects/{}/{}", &sha_refs[..2], &sha_refs[2..]);
+
+        let git_data = fs::read(git_path_pack).unwrap();
+        let (delta, bytes) = zlib::decode_data(&git_data.to_vec());
+
+        let data = delta.split("\n").next().unwrap().split(" ");
+
+        let sha_tree = data.clone().nth(data.count() - 1).unwrap();
+        println!("sha_tree: {:?}", &sha_tree);
+
+
     }
     //
+    fn checkout(){
+        //do checkout 
+
+            
+    }
+
+    fn apply_delta(delta: &[u8], base: &[u8]) -> String {
+        let mut seek: usize = 0;
+        // println!("delta: {:#?}", delta);
+        while delta[seek] > 128 {
+            seek += 1;
+        }
+        seek += 1;
+        while delta[seek] > 128 {
+            seek += 1;
+        }
+        seek += 1;
+        let mut content = String::new();
+        //content = "".to_string();
+        //  println!("content: {:?}", &content);
+        let delta_len = delta.len();
+        // println!(" delta_len: {:?}", &delta_len);
+        while seek < delta_len {
+            let instr_byte = delta[seek];
+            seek += 1;
+
+            if instr_byte >= 128 {
+                let offset_key = instr_byte & 0b00001111;
+
+                let mut offset_bytes: [u8; 8] = [0; 8];
+
+                for n in 0..8 {
+                    let b = offset_key >> n & 1;
+
+                    if b == 1 {
+                        offset_bytes[n] = delta[seek];
+
+                        seek += 1
+                    }
+                }
+                let offset = usize::from_le_bytes(offset_bytes);
+
+                let len_key = (instr_byte & 0b01110000) >> 4;
+
+                let mut len_bytes: [u8; 8] = [0; 8];
+                for n in 0..8 {
+                    let b = len_key >> n & 1;
+                    if b == 1 {
+                        len_bytes[n] = delta[seek];
+
+                        seek += 1
+                    }
+                }
+
+                let len_int = usize::from_le_bytes(len_bytes);
+
+                content += &String::from_utf8_lossy(&base[offset..(offset + len_int)]);
+            } else {
+                let num_bytes = instr_byte & 0b01111111;
+
+                let num_bytes = usize::from(num_bytes);
+
+                content += &String::from_utf8_lossy(&delta[seek..(seek + num_bytes)]);
+
+                seek += num_bytes;
+            }
+        }
+        content
+    }
 
     fn get_data_form_git(link: String, body: String) -> Result<bytes::Bytes, io::Error> {
         let mut headers = HeaderMap::new();

@@ -11,20 +11,27 @@ pub fn decode_data(compressed_data: &[u8]) -> (String, usize) {
     let mut buffer = [0; 4096];
     let mut string_buffer = String::new();
     let mut bytes = 0;
-    loop {
-        let bytes_read = match decoder.read(&mut buffer) {
-            Ok(0) => break,
-            Ok(n) => n,
-            Err(e) => panic!("Unable to read from decoder: {:?}", e),
-        };
-        bytes = bytes_read;
-    }
 
+    let mut buff_vec = Vec::new();
+
+    decoder.read_to_end(&mut buff_vec);
+
+    let bytes_read = decoder.total_in();
+    /*
+       loop {
+           let bytes_read = match decoder.read_to_end(&mut buff_vec) {
+               Ok(0) => break,
+               Ok(n) => n,
+               Err(e) => panic!("Unable to read from decoder: {:?}", e),
+           };
+           bytes = bytes_read;
+       }
+    */
     #[allow(unsafe_code)]
-    let string_buffer = unsafe { String::from_utf8_unchecked((&buffer[..bytes]).to_vec()) };
+    let string_buffer = unsafe { String::from_utf8_unchecked(buff_vec) };
     //string_buffer.push_str(&String::from_utf8_lossy(&buffer[..bytes]));
 
-    (string_buffer, bytes)
+    (string_buffer, bytes_read as usize)
 }
 
 pub fn encode_data(data_to_compress: String) -> (String, Vec<u8>) {
