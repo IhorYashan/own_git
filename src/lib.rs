@@ -19,6 +19,17 @@ pub mod git {
         fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
     }
 
+    fn create_dir(dir_name: &str) {
+        fs::create_dir(dir_name);
+        fs::create_dir(dir_name.to_owned() + "/.git");
+        fs::create_dir(dir_name.to_owned() + "/.git/objects/");
+        fs::create_dir(dir_name.to_owned() + "/.git/refs");
+        fs::write(
+            dir_name.to_owned() + "/.git/HEAD",
+            "ref: refs/heads/master\n",
+        );
+    }
+
     pub fn read_blob(blob_file: String) {
         let mut file_content = Vec::new();
         let path_to_objects = ".git/objects/";
@@ -172,11 +183,9 @@ pub mod git {
         // let mut sha_refs = String::new();
         // let mut sha_head = String::new();
 
-        fs::create_dir(dir_name.clone()).unwrap();
-        let dir_root = PathBuf::from(dir_name.clone());
-        env::set_current_dir(dir_root).unwrap();
-        //
-        do_git_init();
+        create_dir(&dir_name);
+
+        let dir_obj = dir_name.to_owned() + "/.git/objects/";
 
         //let link_post =
         let post_url = link.clone() + &"/git-upload-pack".to_string();
@@ -248,11 +257,8 @@ pub mod git {
 
                 let (git_data, bytes) = zlib::decode_data(&data_bytes[seek..]);
 
-                let hash_obj = write_obj(
-                    git_data.clone().into_bytes(),
-                    data_type[obj_type],
-                    &dir_name,
-                );
+                let hash_obj =
+                    write_obj(git_data.clone().into_bytes(), data_type[obj_type], &dir_obj);
 
                 objects.insert(hash_obj, (git_data, obj_type));
 
@@ -274,13 +280,9 @@ pub mod git {
 
                 obj_type = elem_num;
 
-                let hash_obj = write_obj(
-                    git_data.clone().into_bytes(),
-                    data_type[obj_type],
-                    &dir_name,
-                );
+                let hash_obj = write_obj(content.clone().into(), data_type[obj_type], &dir_obj);
 
-                objects.insert(hash_obj, (git_data, obj_type));
+                objects.insert(hash_obj, (content, obj_type));
 
                 seek += bytes;
             }
@@ -294,16 +296,63 @@ pub mod git {
 
         let data = delta.split("\n").next().unwrap().split(" ");
 
-        let sha_tree = data.clone().nth(data.count() - 1).unwrap();
-        println!("sha_tree: {:?}", &sha_tree);
+        let sha_obj = data.clone().nth(data.count() - 1).unwrap();
+        println!("sha_obj: {:?}", &sha_obj);
 
-
+        checkout(&sha_obj, &dir_name, &dir_obj);
     }
     //
-    fn checkout(){
-        //do checkout 
+    fn checkout(sha: &str, file_path: &str, dir_name: &str) {
+        //do checkout
+        fs::create_dir_all(&file_path);
 
-            
+        let git_data =
+            fs::read(dir_name.to_string() + &format!("{}/{}", &sha[..2], &sha[2..])).unwrap();
+
+        let (s_git_data, bytes) = zlib::decode_data(&git_data[..]);
+
+        let mut enteries = Vec::new();
+
+        let pos = s_git_data
+            .as_bytes()
+            .iter()
+            .position(|&r| r == '\x00' as u8)
+            .unwrap();
+
+        let mut tree = &s_git_data[pos + 1..];
+
+        while tree.len() > 0 {
+            let pos = tree
+                .as_bytes()
+                .iter()
+                .position(|&r| r == '\x00' as u8)
+                .unwrap();
+
+            let mode_name = &tree[..pos];
+
+            let mut mode_name = mode_name.split(|num: char| num == ' ');
+
+            let mode = mode_name.next().unwrap();
+            let name = mode_name.next().unwrap();
+
+            tree = &tree[pos + 1..];
+
+            let sha = &tree[..20];
+
+            tree = &tree[20..];
+
+            println!("tree: {:#?}", &tree);
+
+            let sha = hex::encode(&sha[..]);
+            let mode = String::from_utf8_lossy(mode.as_bytes());
+            let name = String::from_utf8_lossy(name.as_bytes());
+
+            println!("mode: {:#?}", &mode);
+            println!("name: {:#?}", &name);
+            println!("sha: {:#?}", &sha);
+
+            enteries.push((mode.clone(), name.clone(), sha.clone()));
+        }
     }
 
     fn apply_delta(delta: &[u8], base: &[u8]) -> String {
