@@ -304,7 +304,7 @@ pub mod git {
 
         checkout(&sha_obj, &dir_name, &dir_obj);
     }
-    //
+
     fn checkout(sha: &str, file_path: &str, dir_name: &str) {
         //do checkout
         fs::create_dir_all(&file_path).unwrap();
