@@ -258,8 +258,11 @@ pub mod git {
 
                 let (git_data, bytes) = zlib::decode_data(&data_bytes[seek..]);
 
-                let hash_obj =
-                    write_obj(git_data.clone().into_bytes(), data_type[obj_type], &dir_obj);
+                let hash_obj = write_obj(
+                    git_data.clone().into_bytes(),
+                    data_type[obj_type],
+                    &dir_name,
+                );
 
                 objects.insert(hash_obj, (git_data, obj_type));
 
@@ -281,7 +284,7 @@ pub mod git {
 
                 obj_type = elem_num;
 
-                let hash_obj = write_obj(content.clone().into(), data_type[obj_type], &dir_obj);
+                let hash_obj = write_obj(content.clone().into(), data_type[obj_type], &dir_name);
 
                 objects.insert(hash_obj, (content, obj_type));
 
