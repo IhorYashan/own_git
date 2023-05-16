@@ -292,6 +292,8 @@ pub mod git {
         let git_path_pack =
             dir_name.to_owned() + &format!("/.git/objects/{}/{}", &sha_refs[..2], &sha_refs[2..]);
 
+        println!("{:?}", git_path_pack);
+
         let git_data = fs::read(git_path_pack).unwrap();
         let (delta, _bytes) = zlib::decode_data(&git_data.to_vec());
 
