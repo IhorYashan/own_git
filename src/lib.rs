@@ -63,7 +63,7 @@ pub mod git {
         let mut _full_hash_path_dir = String::new();
 
         if target_dir != "./" {
-            _sub_hash_path_dir = format!("{}.git/objects/{}/", target_dir, hash_dir);
+            _sub_hash_path_dir = format!("{}/.git/objects/{}/", target_dir, hash_dir);
             _full_hash_path_dir = _sub_hash_path_dir.clone() + &hash_file;
             println!("sub_hash_path_dir : {:?}", _sub_hash_path_dir);
             println!("full_hash_path_dir : {:?}", _full_hash_path_dir);
@@ -192,12 +192,11 @@ pub mod git {
         let post_url = link.clone() + &"/git-upload-pack".to_string();
         let link = format!("{}/info/refs?service=git-upload-pack", link);
         println!("link to search : {}", link);
-        
+
         let body = reqwest::blocking::get(link.clone())
             .unwrap()
             .text()
             .unwrap();
-
 
         let (sha_refs, sha_head) = extract_commit_hash(&body);
 
