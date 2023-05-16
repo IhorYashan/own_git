@@ -329,34 +329,33 @@ pub mod git {
             .position(|&r| r == '\x00' as u8)
             .unwrap();
 
-        let mut _tree = &s_git_data[pos + 1..];
-        let mut tree_bytes = s_git_data.clone().into_bytes();
+        let mut tree = &s_git_data[pos + 1..];
 
-        // let tree_bytes = s_git_data.clone().into_bytes();
-        let mut index = 0;
-
-        while index < tree_bytes.len() {
-            let pos = tree_bytes[index..]
+        while tree.len() > 0 {
+            let pos = tree
+                .as_bytes()
                 .iter()
-                .position(|&r| r == ' ' as u8)
-                .map(|pos| index + pos)
-                .unwrap_or(tree_bytes.len());
+                .position(|&r| r == '\x00' as u8)
+                .unwrap();
 
-            let mode_name = &tree_bytes[index..pos];
+            let mode_name = &tree[..pos];
 
-            let mut mode_name = mode_name.split(|&num| num == ' ' as u8);
+            let mut mode_name = mode_name.split(|num: char| num == ' ');
 
             let mode = mode_name.next().unwrap();
             let name = mode_name.next().unwrap();
 
-            index = pos + 1;
+            tree = &tree[pos + 1..];
 
-            let sha = &tree_bytes[index..index + 20];
-            index += 20;
+            let sha = &tree[..20];
 
-            let sha = hex::encode(&sha);
-            let mode = String::from_utf8_lossy(mode);
-            let name = String::from_utf8_lossy(name);
+            tree = &tree[20..];
+
+            //println!("tree: {:#?}", &tree);
+
+            let sha = hex::encode(&sha[..]);
+            let mode = String::from_utf8_lossy(mode.as_bytes());
+            let name = String::from_utf8_lossy(name.as_bytes());
 
             println!("mode: {:#?}", &mode);
             println!("name: {:#?}", &name);
@@ -364,7 +363,6 @@ pub mod git {
 
             enteries.push((mode.clone(), name.clone(), sha.clone()));
         }
-
         for entry in enteries {
             if entry.0 == "40000" {
                 //  println!("blob_sha 40000: {:#?}", &entry.1);
