@@ -62,7 +62,7 @@ pub mod git {
         let mut full_hash_path_dir = String::new();
 
         if target_dir != "./" {
-            sub_hash_path_dir = format!("{}/.git/objects/{}/", target_dir, hash_dir);
+            sub_hash_path_dir = format!("{}.git/objects/{}/", target_dir, hash_dir);
             full_hash_path_dir = sub_hash_path_dir.clone() + &hash_file;
             println!("sub_hash_path_dir : {:?}", sub_hash_path_dir);
             println!("full_hash_path_dir : {:?}", full_hash_path_dir);
