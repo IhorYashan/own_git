@@ -338,7 +338,7 @@ pub mod git {
 
             s_git_data = rem.to_string();
 
-            let sha = hex::encode(sha);
+            let sha = hex::encode(&sha[..]);
 
             enteries.push((mode.to_owned(), file_name.to_owned(), sha.clone()));
             /*
