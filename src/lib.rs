@@ -387,7 +387,7 @@ pub mod git {
                 let blob_sha = entry.2;
 
                 let curr_dir = dir_name.clone().to_owned()
-                    + &format!("/.git/objects/{}/{}", &blob_sha[..2], &blob_sha[2..]);
+                    + &format!(".git/objects/{}/{}", &blob_sha[..2], &blob_sha[2..]);
 
                 let git_data = fs::read(curr_dir).unwrap();
                 let (s_git_data, _bytes) = zlib::decode_data(&git_data[..]);
