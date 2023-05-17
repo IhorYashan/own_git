@@ -315,49 +315,65 @@ pub mod git {
         let git_data =
             fs::read(dir_name.to_string() + &format!("{}/{}", &sha[..2], &sha[2..])).unwrap();
 
-        let (s_git_data, _bytes) = zlib::decode_data(&git_data[..]);
+        let (mut s_git_data, _bytes) = zlib::decode_data(&git_data[..]);
 
         let mut enteries = Vec::new();
 
-        let pos = s_git_data
-            .as_bytes()
-            .iter()
-            .position(|&r| r == '\x00' as u8)
-            .unwrap();
+        /*let pos = s_git_data
+                    .as_bytes()
+                    .iter()
+                    .position(|&r| r == '\x00' as u8)
+                    .unwrap();
 
-        let mut tree = &s_git_data[pos + 1..];
+                let mut tree = &s_git_data[pos + 1..];
+        */
+        while s_git_data.len() > 0 {
+            let temp_s_git_data = s_git_data.clone();
 
-        while tree.len() > 0 {
-            let pos = tree
-                .as_bytes()
-                .iter()
-                .position(|&r| r == '\x00' as u8)
-                .unwrap();
+            let (mode, rest) = temp_s_git_data.split_once(' ').unwrap();
 
-            let mode_name = &tree[..pos];
+            let (file_name, rest) = rest.split_once('\0').unwrap();
 
-            let mut mode_name = mode_name.split(|num: char| num == ' ');
+            let (sha, rem) = rest.split_at(20);
 
-            let mode = mode_name.next().unwrap();
-            let name = mode_name.next().unwrap();
+            s_git_data = rem.to_string();
 
-            tree = &tree[pos..];
+            let sha = hex::encode(sha);
 
-            let sha = &tree[..20];
+            enteries.push((mode.to_owned(), file_name.to_owned(), sha.clone()));
+            /*
 
-            tree = &tree[20..];
+                       let pos = tree
+                           .as_bytes()
+                           .iter()
+                           .position(|&r| r == '\x00' as u8)
+                           .unwrap();
 
-            //println!("tree: {:#?}", &tree);
+                       let mode_name = &tree[..pos];
 
-            let sha = hex::encode(&sha[..]);
-            let mode = String::from_utf8_lossy(mode.as_bytes());
-            let name = String::from_utf8_lossy(name.as_bytes());
+                       let mut mode_name = mode_name.split(|num: char| num == ' ');
 
-            println!("mode: {:#?}", &mode);
-            println!("name: {:#?}", &name);
-            println!("sha: {:#?}", &sha);
+                       let mode = mode_name.next().unwrap();
+                       let name = mode_name.next().unwrap();
 
-            enteries.push((mode.clone(), name.clone(), sha.clone()));
+                       tree = &tree[pos + 1..];
+
+                       let sha = &tree[..20];
+
+                       tree = &tree[20..];
+
+                       //println!("tree: {:#?}", &tree);
+
+                       let sha = hex::encode(&sha[..]);
+                       let mode = String::from_utf8_lossy(mode.as_bytes());
+                       let name = String::from_utf8_lossy(name.as_bytes());
+
+                       println!("mode: {:#?}", &mode);
+                       println!("name: {:#?}", &name);
+                       println!("sha: {:#?}", &sha);
+
+                       enteries.push((mode.clone(), name.clone(), sha.clone()));
+            */
         }
         for entry in enteries {
             if entry.0 == "40000" {
