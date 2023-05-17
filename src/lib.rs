@@ -341,7 +341,7 @@ pub mod git {
             let mode = mode_name.next().unwrap();
             let name = mode_name.next().unwrap();
 
-            tree = &tree[pos + 1..];
+            tree = &tree[pos..];
 
             let sha = &tree[..20];
 
