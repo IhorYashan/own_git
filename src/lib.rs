@@ -386,8 +386,8 @@ pub mod git {
             } else {
                 let blob_sha = entry.2;
 
-                let curr_dir = dir_name.clone().to_owned()
-                    + &format!("/{}/{}", &blob_sha[..2], &blob_sha[2..]);
+                let curr_dir =
+                    dir_name.clone().to_owned() + &format!("{}/{}", &blob_sha[..2], &blob_sha[2..]);
 
                 println!("curr_dir : {}", curr_dir);
                 let git_data = fs::read(curr_dir).unwrap();
