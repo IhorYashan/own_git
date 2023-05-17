@@ -223,8 +223,6 @@ pub mod git {
 
         //    print!("buff : {:?}", data_from_git);
 
-        // --- parssing data --- //
-
         let git_data_size = data_from_git.len() - 20;
         println!("git_data_size : {}", git_data_size);
         let entries_bytes = &data_from_git[16..20];
