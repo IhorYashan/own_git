@@ -305,7 +305,7 @@ pub mod git {
         let sha_obj = data.clone().nth(data.count() - 1).unwrap();
         println!("sha_obj: {:?}", &sha_obj);
 
-        checkout(&sha_obj, &dir_name, &dir_obj);
+        checkout(&sha_obj, &dir_obj, &dir_name);
     }
 
     fn checkout(sha: &str, file_path: &str, dir_name: &str) {
