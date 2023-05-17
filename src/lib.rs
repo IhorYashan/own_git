@@ -43,7 +43,11 @@ pub mod git {
 
         let compressed_data = &file_content[..];
         let (buffer, _bytes) = zlib::decode_data(compressed_data);
-        print!("{}", &buffer[8..]);
+
+        #[allow(unsafe_code)]
+        let string_buffer = unsafe { String::from_utf8_unchecked(buffer) };
+
+        print!("{}", &string_buffer[8..]);
     }
 
     pub fn write_obj(content_file: Vec<u8>, file_type: &str, target_dir: &str) -> String {
@@ -65,7 +69,7 @@ pub mod git {
         if target_dir != "./" {
             _sub_hash_path_dir = format!("{}/.git/objects/{}/", target_dir, hash_dir);
             _full_hash_path_dir = _sub_hash_path_dir.clone() + &hash_file;
-            println!("sub_hash_path_dir : {:?}", _sub_hash_path_dir);
+            //println!("sub_hash_path_dir : {:?}", _sub_hash_path_dir);
             println!("full_hash_path_dir : {:?}", _full_hash_path_dir);
         } else {
             _sub_hash_path_dir = format!(".git/objects/{}/", hash_dir);
@@ -147,10 +151,13 @@ pub mod git {
         let compressed_data = &file_content[..];
         let (formatted_buff, _bytes) = zlib::decode_data(compressed_data);
 
-        let formatted_buff = formatted_buff.replace("\\x00", "\x00");
-        let formatted_buff = formatted_buff.replace("\\\\", "\\");
+        #[allow(unsafe_code)]
+        let string_buffer = unsafe { String::from_utf8_unchecked(formatted_buff) };
 
-        let parts: Vec<&str> = formatted_buff.split('\x00').skip(1).collect();
+        let string_buffer = string_buffer.replace("\\x00", "\x00");
+        let string_buffer = string_buffer.replace("\\\\", "\\");
+
+        let parts: Vec<&str> = string_buffer.split('\x00').skip(1).collect();
 
         for part in parts {
             if part.contains(' ') {
@@ -258,13 +265,16 @@ pub mod git {
 
                 let (git_data, bytes) = zlib::decode_data(&data_bytes[seek..]);
 
+                #[allow(unsafe_code)]
+                let string_buffer = unsafe { String::from_utf8_unchecked(git_data) };
+
                 let hash_obj = write_obj(
-                    git_data.clone().into_bytes(),
+                    string_buffer.clone().into_bytes(),
                     data_type[obj_type],
                     &dir_name,
                 );
 
-                objects.insert(hash_obj, (git_data, obj_type));
+                objects.insert(hash_obj, (string_buffer, obj_type));
 
                 //    println!("{:?}", objects);
 
@@ -280,7 +290,10 @@ pub mod git {
 
                 let (git_data, bytes) = zlib::decode_data(&data_bytes[seek..]);
 
-                let content = apply_delta(&git_data.as_bytes(), &base.as_bytes());
+                #[allow(unsafe_code)]
+                let string_buffer = unsafe { String::from_utf8_unchecked(git_data) };
+
+                let content = apply_delta(&string_buffer.as_bytes(), &base.as_bytes());
 
                 obj_type = elem_num;
 
@@ -295,12 +308,16 @@ pub mod git {
         let git_path_pack =
             dir_name.to_owned() + &format!("/.git/objects/{}/{}", &sha_refs[..2], &sha_refs[2..]);
 
-        println!("{:?}", git_path_pack);
+        println!("git_path_pack : {:?}", git_path_pack);
 
         let git_data = fs::read(git_path_pack).unwrap();
+
         let (delta, _bytes) = zlib::decode_data(&git_data.to_vec());
 
-        let data = delta.split("\n").next().unwrap().split(" ");
+        #[allow(unsafe_code)]
+        let string_buffer_delta = unsafe { String::from_utf8_unchecked(delta) };
+
+        let data = string_buffer_delta.split("\n").next().unwrap().split(" ");
 
         let sha_obj = data.clone().nth(data.count() - 1).unwrap();
         println!("sha_obj: {:?}", &sha_obj);
@@ -310,71 +327,62 @@ pub mod git {
 
     fn checkout(sha: &str, file_path: &str, dir_name: &str) {
         //do checkout
+
+        println!("file_path: {file_path}");
+        println!("dir_name: {dir_name}");
+        println!("shashashasha: {sha}");
+
         fs::create_dir_all(&file_path).unwrap();
 
         let git_data =
             fs::read(dir_name.to_string() + &format!("{}/{}", &sha[..2], &sha[2..])).unwrap();
 
-        let (mut s_git_data, _bytes) = zlib::decode_data(&git_data[..]);
+        let read_fs = dir_name.to_string() + &format!("{}/{}", &sha[..2], &sha[2..]);
+
+        println!("read_fs : read_fs: {}", read_fs);
+
+        let (mut git_data, _bytes) = zlib::decode_data(&git_data[..]);
+
+        let pos = git_data.iter().position(|&r| r == '\x00' as u8).unwrap();
+        let mut tree = &git_data[pos + 1..];
+        //#[allow(unsafe_code)]
+        //let string_buffer = unsafe { String::from_utf8_unchecked(buff_vec) };
 
         let mut enteries = Vec::new();
 
-        /*let pos = s_git_data
-                    .as_bytes()
-                    .iter()
-                    .position(|&r| r == '\x00' as u8)
-                    .unwrap();
+        while tree.len() > 0 {
+            let pos = tree.iter().position(|&r| r == '\x00' as u8).unwrap();
 
-                let mut tree = &s_git_data[pos + 1..];
-        */
-        while s_git_data.len() > 0 {
-            let temp_s_git_data = s_git_data.clone();
+            // println!("position: {:#?}", &pos);
 
-            let (mode, rest) = temp_s_git_data.split_once(' ').unwrap();
+            let mode_name = &tree[..pos];
 
-            let (file_name, rest) = rest.split_once('\0').unwrap();
+            let mut mode_name = mode_name.split(|&num| num == ' ' as u8);
 
-            let (sha, rem) = rest.split_at(20);
+            //println!("mode_name: {:#?}", &mode_name);
 
-            s_git_data = rem.to_string();
+            let mode = mode_name.next().unwrap();
+            let name = mode_name.next().unwrap();
+
+            tree = &tree[pos + 1..];
+
+            let sha = &tree[..20];
+
+            tree = &tree[20..];
+
+            //println!("tree: {:#?}", &tree);
 
             let sha = hex::encode(&sha[..]);
+            let mode = String::from_utf8_lossy(mode);
+            let name = String::from_utf8_lossy(name);
 
-            enteries.push((mode.to_owned(), file_name.to_owned(), sha.clone()));
-            /*
+            // println!("mode: {:#?}", &mode);
+            // println!("name: {:#?}", &name);
+            //println!("sha: {:#?}", &sha);
 
-                       let pos = tree
-                           .as_bytes()
-                           .iter()
-                           .position(|&r| r == '\x00' as u8)
-                           .unwrap();
-
-                       let mode_name = &tree[..pos];
-
-                       let mut mode_name = mode_name.split(|num: char| num == ' ');
-
-                       let mode = mode_name.next().unwrap();
-                       let name = mode_name.next().unwrap();
-
-                       tree = &tree[pos + 1..];
-
-                       let sha = &tree[..20];
-
-                       tree = &tree[20..];
-
-                       //println!("tree: {:#?}", &tree);
-
-                       let sha = hex::encode(&sha[..]);
-                       let mode = String::from_utf8_lossy(mode.as_bytes());
-                       let name = String::from_utf8_lossy(name.as_bytes());
-
-                       println!("mode: {:#?}", &mode);
-                       println!("name: {:#?}", &name);
-                       println!("sha: {:#?}", &sha);
-
-                       enteries.push((mode.clone(), name.clone(), sha.clone()));
-            */
+            enteries.push((mode.clone(), name.clone(), sha.clone()));
         }
+
         for entry in enteries {
             if entry.0 == "40000" {
                 //  println!("blob_sha 40000: {:#?}", &entry.1);
@@ -385,19 +393,17 @@ pub mod git {
                 );
             } else {
                 let blob_sha = entry.2;
-                //
+
                 let curr_dir =
                     dir_name.clone().to_owned() + &format!("{}/{}", &blob_sha[..2], &blob_sha[2..]);
+
+                println!("blob_sha: {}", &blob_sha);
 
                 println!("curr_dir : {:?}", curr_dir);
                 let git_data = fs::read(curr_dir).unwrap();
                 let (s_git_data, _bytes) = zlib::decode_data(&git_data[..]);
 
-                let pos = s_git_data
-                    .as_bytes()
-                    .iter()
-                    .position(|&r| r == '\x00' as u8)
-                    .unwrap();
+                let pos = s_git_data.iter().position(|&r| r == '\x00' as u8).unwrap();
 
                 let content = &s_git_data[pos + 1..];
 

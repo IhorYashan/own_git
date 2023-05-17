@@ -6,7 +6,7 @@ use sha1::{Digest, Sha1};
 use std::io::Read;
 use std::io::Write;
 
-pub fn decode_data(compressed_data: &[u8]) -> (String, usize) {
+pub fn decode_data(compressed_data: &[u8]) -> (Vec<u8>, usize) {
     let mut decoder = ZlibDecoder::new(compressed_data);
     let mut _buffer = [0; 4096];
     let mut _string_buffer = String::new();
@@ -27,11 +27,11 @@ pub fn decode_data(compressed_data: &[u8]) -> (String, usize) {
            bytes = bytes_read;
        }
     */
-    #[allow(unsafe_code)]
-    let string_buffer = unsafe { String::from_utf8_unchecked(buff_vec) };
+    //#[allow(unsafe_code)]
+    //let string_buffer = unsafe { String::from_utf8_unchecked(buff_vec) };
     //string_buffer.push_str(&String::from_utf8_lossy(&buffer[..bytes]));
 
-    (string_buffer, bytes_read as usize)
+    (buff_vec, bytes_read as usize)
 }
 
 pub fn encode_data(data_to_compress: String) -> (String, Vec<u8>) {
