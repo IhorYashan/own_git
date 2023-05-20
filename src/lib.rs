@@ -149,27 +149,6 @@ pub mod git {
         res_sha
     }
 
-    fn create_dir(dir_name: &str) {
-        if dir_name != "" {
-            fs::create_dir(dir_name).unwrap();
-        }
-
-        fs::create_dir(dir_name.to_owned() + ".git").unwrap();
-        println!("{}", dir_name.to_owned() + ".git");
-        fs::create_dir(dir_name.to_owned() + ".git/objects/").unwrap();
-        fs::create_dir(dir_name.to_owned() + ".git/refs").unwrap();
-        fs::write(
-            dir_name.to_owned() + ".git/HEAD",
-            "ref: refs/heads/master\n",
-        )
-        .unwrap();
-    }
-
-    pub fn parse_args(args: &String) -> (&str, &str) {
-        let (hash_path, hash_file) = (&args[..2], &args[2..]);
-        (hash_path, hash_file)
-    }
-
     pub fn do_commit(tree_sha: String, commit_sha: String, message: String) -> String {
         let content_commit = format!(
             "tree {}\nparent {}\nauthor ScotChacon <schacon@gmail.com> 1243040974 -0700\ncommitter ScotChacon <schacon@gmail.com> 1243040974 -0700\n\n",
@@ -182,13 +161,6 @@ pub mod git {
         sha_commit
     }
 
-    /*
-     async fn get_data(url: &str) -> &str {
-         let response = reqwest::get(url).await.unwrap();
-         let body = response.text().await.unwrap();
-         body
-     }
-    */
     pub fn clone_repo(dir_name: String, link: String) {
         // let mut sha_refs = String::new();
         // let mut sha_head = String::new();
@@ -328,13 +300,28 @@ pub mod git {
         checkout(&sha_obj, &dir_name, &dir_obj);
     }
 
+    fn create_dir(dir_name: &str) {
+        if dir_name != "" {
+            fs::create_dir(dir_name).unwrap();
+        }
+
+        fs::create_dir(dir_name.to_owned() + ".git").unwrap();
+        println!("{}", dir_name.to_owned() + ".git");
+        fs::create_dir(dir_name.to_owned() + ".git/objects/").unwrap();
+        fs::create_dir(dir_name.to_owned() + ".git/refs").unwrap();
+        fs::write(
+            dir_name.to_owned() + ".git/HEAD",
+            "ref: refs/heads/master\n",
+        )
+        .unwrap();
+    }
+
+    fn parse_args(args: &String) -> (&str, &str) {
+        let (hash_path, hash_file) = (&args[..2], &args[2..]);
+        (hash_path, hash_file)
+    }
+
     fn checkout(sha: &str, file_path: &str, dir_name: &str) {
-        //do checkout
-
-        println!("file_path: {file_path}");
-        println!("dir_name: {dir_name}");
-        println!("shashashasha: {sha}");
-
         fs::create_dir_all(&file_path).unwrap();
 
         let git_data =
@@ -491,10 +478,7 @@ pub mod git {
         );
 
         let client = reqwest::blocking::Client::new();
-        let client_req = client
-            .post(link)
-            .header("content-type", "application/x-git-upload-pack-request")
-            .body(body);
+        let client_req = client.post(link).header(headers).body(body);
 
         println!("client_req : {:#?}", client_req);
         println!("headers : {:#?}", headers.clone());
