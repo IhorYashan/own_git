@@ -13,10 +13,11 @@ pub mod git {
     use std::io;
     use std::io::Read;
     pub fn do_git_init() {
-        fs::create_dir(".git").unwrap();
-        fs::create_dir(".git/objects").unwrap();
-        fs::create_dir(".git/refs").unwrap();
-        fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
+        // fs::create_dir(".git").unwrap();
+        // fs::create_dir(".git/objects").unwrap();
+        // fs::create_dir(".git/refs").unwrap();
+        // fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
+        create_dir("");
     }
 
     fn create_dir(dir_name: &str) {
