@@ -21,8 +21,12 @@ pub mod git {
     }
 
     fn create_dir(dir_name: &str) {
-        fs::create_dir(dir_name).unwrap();
+        if dir_name != "" {
+            fs::create_dir(dir_name).unwrap();
+        }
+
         fs::create_dir(dir_name.to_owned() + ".git").unwrap();
+        println!("{}", dir_name.to_owned() + ".git");
         fs::create_dir(dir_name.to_owned() + ".git/objects/").unwrap();
         fs::create_dir(dir_name.to_owned() + ".git/refs").unwrap();
         fs::write(
