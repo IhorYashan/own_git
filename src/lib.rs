@@ -471,17 +471,14 @@ pub mod git {
     }
 
     fn get_data_form_git(link: String, body: String) -> Result<bytes::Bytes, io::Error> {
-        let mut headers = HeaderMap::new();
-        headers.insert(
-            CONTENT_TYPE,
-            HeaderValue::from_static("application/x-git-upload-pack-request"),
-        );
-
         let client = reqwest::blocking::Client::new();
-        let client_req = client.post(link).header(headers).body(body);
+        let client_req = client
+            .post(link)
+            .header("content-type", "application/x-git-upload-pack-request")
+            .body(body);
 
         println!("client_req : {:#?}", client_req);
-        println!("headers : {:#?}", headers.clone());
+
         let response_data = client_req.send().unwrap();
 
         println!(
