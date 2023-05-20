@@ -477,8 +477,6 @@ pub mod git {
             .header("content-type", "application/x-git-upload-pack-request")
             .body(body);
 
-        println!("client_req : {:#?}", client_req);
-
         let response_data = client_req.send().unwrap();
 
         println!(
