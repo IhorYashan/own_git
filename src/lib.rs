@@ -12,31 +12,12 @@ pub mod git {
     use std::fs::File;
     use std::io;
     use std::io::Read;
+
     pub fn do_git_init() {
-        // fs::create_dir(".git").unwrap();
-        // fs::create_dir(".git/objects").unwrap();
-        // fs::create_dir(".git/refs").unwrap();
-        // fs::write(".git/HEAD", "ref: refs/heads/master\n").unwrap();
         create_dir("");
     }
 
-    fn create_dir(dir_name: &str) {
-        if dir_name != "" {
-            fs::create_dir(dir_name).unwrap();
-        }
-
-        fs::create_dir(dir_name.to_owned() + ".git").unwrap();
-        println!("{}", dir_name.to_owned() + ".git");
-        fs::create_dir(dir_name.to_owned() + ".git/objects/").unwrap();
-        fs::create_dir(dir_name.to_owned() + ".git/refs").unwrap();
-        fs::write(
-            dir_name.to_owned() + ".git/HEAD",
-            "ref: refs/heads/master\n",
-        )
-        .unwrap();
-    }
-
-    pub fn read_blob(blob_file: String) {
+    pub fn read_git_object(blob_file: String) {
         let mut file_content = Vec::new();
         let path_to_objects = ".git/objects/";
         let (hash_path, hash_file) = parse_args(&blob_file);
@@ -55,7 +36,7 @@ pub mod git {
         print!("{}", &string_buffer[8..]);
     }
 
-    pub fn write_obj(content_file: Vec<u8>, file_type: &str, target_dir: &str) -> String {
+    pub fn write_git_object(content_file: Vec<u8>, file_type: &str, target_dir: &str) -> String {
         #[allow(unsafe_code)]
         let content_file_ = unsafe { String::from_utf8_unchecked(content_file.clone()) };
 
@@ -87,61 +68,7 @@ pub mod git {
         hash_blob_file
     }
 
-    pub fn parse_args(args: &String) -> (&str, &str) {
-        let (hash_path, hash_file) = (&args[..2], &args[2..]);
-        (hash_path, hash_file)
-    }
-
-    pub fn write_tree(file_path: &str) -> String {
-        let mut sha_out: String = String::new();
-        let mut entries: Vec<_> = fs::read_dir(file_path)
-            .expect("Failed to read directory")
-            .map(|res| res.expect("Failed to read entry").path())
-            .collect();
-
-        entries.sort();
-
-        for dir in entries {
-            let mode;
-            let path_name = dir
-                .as_path()
-                .to_str()
-                .expect("Failed to convert path to string");
-            //println!("--- path_name : {} --- ", path_name);
-            if path_name == "./.git" {
-                continue;
-            }
-
-            let sha_file;
-            if dir.is_dir() {
-                mode = "40000";
-                let sha_file1 = write_tree(path_name);
-                sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
-            } else {
-                mode = "100644";
-                let content_file = fs::read(&path_name).unwrap();
-                let sha_file1 = write_obj(content_file, "blob", "./");
-                sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
-            }
-            #[allow(unsafe_code)]
-            let sha = unsafe { String::from_utf8_unchecked(sha_file) };
-
-            sha_out += &format!(
-                "{} {}\x00{}",
-                mode,
-                dir.file_name()
-                    .expect("Failed to get file name")
-                    .to_str()
-                    .expect("Failed to convert file name to string"),
-                sha
-            );
-        }
-
-        let res_sha = write_obj(sha_out.into_bytes(), "tree", "./");
-        res_sha
-    }
-
-    pub fn read_tree_sha(sha_tree: String) {
+    pub fn read_tree_object(sha_tree: String) {
         let mut file_content = Vec::new();
 
         let hash_dir = &sha_tree[..2];
@@ -173,6 +100,76 @@ pub mod git {
         }
     }
 
+    pub fn write_tree_object(file_path: &str) -> String {
+        let mut sha_out: String = String::new();
+        let mut entries: Vec<_> = fs::read_dir(file_path)
+            .expect("Failed to read directory")
+            .map(|res| res.expect("Failed to read entry").path())
+            .collect();
+
+        entries.sort();
+
+        for dir in entries {
+            let mode;
+            let path_name = dir
+                .as_path()
+                .to_str()
+                .expect("Failed to convert path to string");
+            //println!("--- path_name : {} --- ", path_name);
+            if path_name == "./.git" {
+                continue;
+            }
+
+            let sha_file;
+            if dir.is_dir() {
+                mode = "40000";
+                let sha_file1 = write_tree_object(path_name);
+                sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
+            } else {
+                mode = "100644";
+                let content_file = fs::read(&path_name).unwrap();
+                let sha_file1 = write_git_object(content_file, "blob", "./");
+                sha_file = hex::decode(&sha_file1).expect("Failed to decode hex");
+            }
+            #[allow(unsafe_code)]
+            let sha = unsafe { String::from_utf8_unchecked(sha_file) };
+
+            sha_out += &format!(
+                "{} {}\x00{}",
+                mode,
+                dir.file_name()
+                    .expect("Failed to get file name")
+                    .to_str()
+                    .expect("Failed to convert file name to string"),
+                sha
+            );
+        }
+
+        let res_sha = write_git_object(sha_out.into_bytes(), "tree", "./");
+        res_sha
+    }
+
+    fn create_dir(dir_name: &str) {
+        if dir_name != "" {
+            fs::create_dir(dir_name).unwrap();
+        }
+
+        fs::create_dir(dir_name.to_owned() + ".git").unwrap();
+        println!("{}", dir_name.to_owned() + ".git");
+        fs::create_dir(dir_name.to_owned() + ".git/objects/").unwrap();
+        fs::create_dir(dir_name.to_owned() + ".git/refs").unwrap();
+        fs::write(
+            dir_name.to_owned() + ".git/HEAD",
+            "ref: refs/heads/master\n",
+        )
+        .unwrap();
+    }
+
+    pub fn parse_args(args: &String) -> (&str, &str) {
+        let (hash_path, hash_file) = (&args[..2], &args[2..]);
+        (hash_path, hash_file)
+    }
+
     pub fn do_commit(tree_sha: String, commit_sha: String, message: String) -> String {
         let content_commit = format!(
             "tree {}\nparent {}\nauthor ScotChacon <schacon@gmail.com> 1243040974 -0700\ncommitter ScotChacon <schacon@gmail.com> 1243040974 -0700\n\n",
@@ -181,7 +178,7 @@ pub mod git {
 
         let content_commit = content_commit + &message + "\n";
 
-        let sha_commit = write_obj(content_commit.into_bytes(), "commit", "./");
+        let sha_commit = write_git_object(content_commit.into_bytes(), "commit", "./");
         sha_commit
     }
 
@@ -273,7 +270,7 @@ pub mod git {
                 #[allow(unsafe_code)]
                 let string_buffer = unsafe { String::from_utf8_unchecked(git_data) };
 
-                let hash_obj = write_obj(
+                let hash_obj = write_git_object(
                     string_buffer.clone().into_bytes(),
                     data_type[obj_type],
                     &dir_name,
@@ -302,7 +299,8 @@ pub mod git {
 
                 obj_type = elem_num;
 
-                let hash_obj = write_obj(content.clone().into(), data_type[obj_type], &dir_name);
+                let hash_obj =
+                    write_git_object(content.clone().into(), data_type[obj_type], &dir_name);
 
                 objects.insert(hash_obj, (content, obj_type));
 

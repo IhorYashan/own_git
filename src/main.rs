@@ -12,22 +12,22 @@ fn main() {
     if args[1] == "cat-file" && args[2] == "-p" {
         let blob_file = &args[3];
 
-        git::read_blob(blob_file.to_string());
+        git::read_git_object(blob_file.to_string());
     }
 
     if args[1] == "hash-object" && args[2] == "-w" {
         let content_file = fs::read(&args[3].to_string()).unwrap();
 
-        print!("{}", git::write_obj(content_file, "blob", "./"));
+        print!("{}", git::write_git_object(content_file, "blob", "./"));
     }
 
     if args[1] == "ls-tree" && args[2] == "--name-only" {
         let sha_tree = &args[3];
 
-        git::read_tree_sha(sha_tree.to_string());
+        git::read_tree_object(sha_tree.to_string());
     }
     if args[1] == "write-tree" {
-        print!("{}", git::write_tree(&".".to_string()));
+        print!("{}", git::write_tree_object(&".".to_string()));
     }
 
     if args[1] == "commit-tree" && args[3] == "-p" && args[5] == "-m" {
